@@ -1160,14 +1160,14 @@
     let isAdmin = false;
     
     const STORAGE = {
-        USERS: 'ac_users_v2',
-        WORKERS: 'ac_workers_v2',
-        INFECTED_PCS: 'ac_infected_pcs_v2',
-        WITHDRAWALS: 'ac_withdrawals_v2',
-        BUILD_REQUESTS: 'ac_build_requests_v2',
-        BUILDS: 'ac_builds_v2',
-        SESSION: 'ac_session_v2',
-        WORKER_STATUS: 'ac_worker_status_v2'
+        USERS: 'ac_users_v3',
+        WORKERS: 'ac_workers_v3',
+        INFECTED_PCS: 'ac_infected_pcs_v3',
+        WITHDRAWALS: 'ac_withdrawals_v3',
+        BUILD_REQUESTS: 'ac_build_requests_v3',
+        BUILDS: 'ac_builds_v3',
+        SESSION: 'ac_session_v3',
+        WORKER_STATUS: 'ac_worker_status_v3'
     };
     
     const ADMIN = {
@@ -1242,7 +1242,7 @@
     
     // Инициализация данных
     function initData() {
-        // Очищаем старые данные (для отладки)
+        // Очистим старые данные для тестирования (раскомментировать при необходимости)
         // localStorage.clear();
         
         if (!localStorage.getItem(STORAGE.USERS)) {
@@ -1250,7 +1250,7 @@
                 {
                     id: 'admin_001',
                     login: ADMIN.login,
-                    password: ADMIN.password, // Пароль в открытом виде для админа
+                    password: ADMIN.password,
                     username: 'Администратор',
                     role: 'admin',
                     created: new Date().toISOString()
@@ -1285,11 +1285,24 @@
     
     function getData(key) {
         const data = localStorage.getItem(key);
-        return data ? decrypt(data) : null;
+        if (!data) return null;
+        
+        try {
+            return decrypt(data);
+        } catch (e) {
+            console.error('Ошибка при дешифровании данных:', e);
+            return null;
+        }
     }
     
     function saveData(key, data) {
-        localStorage.setItem(key, encrypt(data));
+        try {
+            localStorage.setItem(key, encrypt(data));
+            return true;
+        } catch (e) {
+            console.error('Ошибка при сохранении данных:', e);
+            return false;
+        }
     }
     
     // Обновление статуса онлайн
@@ -1360,8 +1373,14 @@
         const workers = getData(STORAGE.WORKERS) || [];
         workers.push(newWorker);
         
-        saveData(STORAGE.USERS, users);
-        saveData(STORAGE.WORKERS, workers);
+        // Сохраняем оба массива
+        if (!saveData(STORAGE.USERS, users)) {
+            return { success: false, message: 'Ошибка сохранения пользователя' };
+        }
+        
+        if (!saveData(STORAGE.WORKERS, workers)) {
+            return { success: false, message: 'Ошибка сохранения воркера' };
+        }
         
         return { success: true, user: newUser };
     }
@@ -1389,10 +1408,11 @@
         
         // Обновляем статус активности для воркеров
         if (user.role === 'worker') {
-            const workers = getData(STORAGE.WORKERS);
-            const worker = workers.find(w => w.id === user.id);
-            if (worker) {
-                worker.lastActivity = new Date().toISOString();
+            const workers = getData(STORAGE.WORKERS) || [];
+            const workerIndex = workers.findIndex(w => w.id === user.id);
+            
+            if (workerIndex !== -1) {
+                workers[workerIndex].lastActivity = new Date().toISOString();
                 saveData(STORAGE.WORKERS, workers);
                 updateWorkerStatus();
             }
@@ -1435,7 +1455,7 @@
         const sessionData = getData(STORAGE.SESSION);
         if (!sessionData) return false;
         
-        const users = getData(STORAGE.USERS);
+        const users = getData(STORAGE.USERS) || [];
         const user = users.find(u => u.id === sessionData.userId);
         
         if (user) {
@@ -1569,7 +1589,7 @@
     function loadDashboardData() {
         if (!currentUser || isAdmin) return;
         
-        const workers = getData(STORAGE.WORKERS);
+        const workers = getData(STORAGE.WORKERS) || [];
         const worker = workers.find(w => w.id === currentUser.id);
         const pcs = getData(STORAGE.INFECTED_PCS) || [];
         const builds = getData(STORAGE.BUILDS) || [];
@@ -1718,6 +1738,17 @@
         const pcs = getData(STORAGE.INFECTED_PCS) || [];
         const tbody = document.getElementById('admin-workers-table-body');
         
+        if (workers.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--clr-text2);">
+                        Нет зарегистрированных воркеров
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
         tbody.innerHTML = workers.map(worker => {
             const workerPCs = pcs.filter(pc => pc.workerId === worker.id);
             const isOnline = isWorkerOnline(worker.id);
@@ -1805,18 +1836,28 @@
             document.getElementById('view-builds-worker').textContent = `Воркер: ${worker.login}`;
             
             const tbody = document.getElementById('worker-builds-table-body');
-            tbody.innerHTML = workerBuilds.map(build => `
-                <tr>
-                    <td>${formatDate(build.date)}</td>
-                    <td>${build.name}</td>
-                    <td>${build.link.substring(0, 40)}...</td>
-                    <td>
-                        <span class="status-badge ${build.status === 'active' ? 'status-completed' : 'status-pending'}">
-                            ${build.status === 'active' ? 'Активен' : 'На проверке'}
-                        </span>
-                    </td>
-                </tr>
-            `).join('');
+            if (workerBuilds.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--clr-text2);">
+                            У воркера пока нет билдов
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = workerBuilds.map(build => `
+                    <tr>
+                        <td>${formatDate(build.date)}</td>
+                        <td>${build.name}</td>
+                        <td>${build.link.substring(0, 40)}...</td>
+                        <td>
+                            <span class="status-badge ${build.status === 'active' ? 'status-completed' : 'status-pending'}">
+                                ${build.status === 'active' ? 'Активен' : 'На проверке'}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
             
             document.getElementById('view-worker-builds-modal').classList.add('active');
         }
@@ -1826,6 +1867,17 @@
         const pcs = getData(STORAGE.INFECTED_PCS) || [];
         const workers = getData(STORAGE.WORKERS) || [];
         const tbody = document.getElementById('admin-infected-table-body');
+        
+        if (pcs.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--clr-text2);">
+                        Нет зараженных ПК
+                    </td>
+                </tr>
+            `;
+            return;
+        }
         
         tbody.innerHTML = pcs.map(pc => {
             const worker = workers.find(w => w.id === pc.workerId);
@@ -1865,6 +1917,17 @@
         const withdrawals = getData(STORAGE.WITHDRAWALS) || [];
         const workers = getData(STORAGE.WORKERS) || [];
         const tbody = document.getElementById('admin-withdraw-table-body');
+        
+        if (withdrawals.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--clr-text2);">
+                        Нет заявок на вывод
+                    </td>
+                </tr>
+            `;
+            return;
+        }
         
         tbody.innerHTML = withdrawals.map(wd => {
             const worker = workers.find(w => w.id === wd.workerId);
@@ -1908,6 +1971,17 @@
         const requests = getData(STORAGE.BUILD_REQUESTS) || [];
         const workers = getData(STORAGE.WORKERS) || [];
         const tbody = document.getElementById('admin-build-requests-table-body');
+        
+        if (requests.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--clr-text2);">
+                        Нет заявок на билд
+                    </td>
+                </tr>
+            `;
+            return;
+        }
         
         tbody.innerHTML = requests.map(req => {
             const worker = workers.find(w => w.id === req.workerId);
@@ -1957,6 +2031,11 @@
         if (currentUser && currentUser.role === 'worker') {
             setInterval(updateWorkerStatus, 60000); // Каждую минуту
         }
+        
+        // Отладочная информация
+        console.log('App initialized');
+        console.log('Workers:', getData(STORAGE.WORKERS));
+        console.log('Build requests:', getData(STORAGE.BUILD_REQUESTS));
     }
     
     function initUI() {
@@ -2017,6 +2096,10 @@
                 saveSession(result.user);
                 showMainInterface();
                 showNotification('Регистрация успешна', 'success');
+                
+                // Отладочная информация
+                console.log('New worker registered:', login);
+                console.log('Workers in storage:', getData(STORAGE.WORKERS));
             } else {
                 showNotification(result.message, 'error');
             }
@@ -2063,7 +2146,7 @@
             
             // Создаем заявку
             const withdrawals = getData(STORAGE.WITHDRAWALS) || [];
-            withdrawals.push({
+            const newWithdrawal = {
                 id: 'wd_' + Date.now(),
                 workerId: currentUser.id,
                 workerLogin: currentUser.login,
@@ -2071,9 +2154,14 @@
                 address,
                 date: new Date().toISOString(),
                 status: 'pending'
-            });
+            };
             
-            saveData(STORAGE.WITHDRAWALS, withdrawals);
+            withdrawals.push(newWithdrawal);
+            
+            if (!saveData(STORAGE.WITHDRAWALS, withdrawals)) {
+                showNotification('Ошибка при сохранении заявки', 'error');
+                return;
+            }
             
             // Обновляем баланс воркера
             worker.balance -= amount;
@@ -2100,16 +2188,29 @@
         });
         
         document.getElementById('build-modal-confirm').addEventListener('click', () => {
+            if (!currentUser || !currentUser.id) {
+                showNotification('Ошибка: пользователь не авторизован', 'error');
+                return;
+            }
+            
             const requests = getData(STORAGE.BUILD_REQUESTS) || [];
-            requests.push({
+            const newRequest = {
                 id: 'br_' + Date.now(),
                 workerId: currentUser.id,
                 workerLogin: currentUser.login,
                 date: new Date().toISOString(),
                 status: 'pending'
-            });
+            };
             
-            saveData(STORAGE.BUILD_REQUESTS, requests);
+            requests.push(newRequest);
+            
+            if (!saveData(STORAGE.BUILD_REQUESTS, requests)) {
+                showNotification('Ошибка при сохранении заявки', 'error');
+                return;
+            }
+            
+            console.log('New build request created:', newRequest);
+            console.log('All build requests:', requests);
             
             document.getElementById('build-confirm-modal').classList.remove('active');
             showNotification('Заявка отправлена администратору', 'success');
@@ -2141,7 +2242,7 @@
             }
             
             const pcs = getData(STORAGE.INFECTED_PCS) || [];
-            pcs.push({
+            const newPC = {
                 id: 'pc_' + Date.now(),
                 workerId,
                 name,
@@ -2149,9 +2250,14 @@
                 income: parseInt(income),
                 status: 'active',
                 addedDate: new Date().toISOString()
-            });
+            };
             
-            saveData(STORAGE.INFECTED_PCS, pcs);
+            pcs.push(newPC);
+            
+            if (!saveData(STORAGE.INFECTED_PCS, pcs)) {
+                showNotification('Ошибка при сохранении ПК', 'error');
+                return;
+            }
             
             // Обновляем баланс воркера
             const workers = getData(STORAGE.WORKERS);
