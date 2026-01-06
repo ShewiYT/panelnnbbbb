@@ -1158,17 +1158,16 @@
     
     let currentUser = null;
     let isAdmin = false;
-    let currentWorkerId = null;
     
     const STORAGE = {
-        USERS: 'ac_users',
-        WORKERS: 'ac_workers',
-        INFECTED_PCS: 'ac_infected_pcs',
-        WITHDRAWALS: 'ac_withdrawals',
-        BUILD_REQUESTS: 'ac_build_requests',
-        BUILDS: 'ac_builds',
-        SESSION: 'ac_session',
-        WORKER_STATUS: 'ac_worker_status'
+        USERS: 'ac_users_v2',
+        WORKERS: 'ac_workers_v2',
+        INFECTED_PCS: 'ac_infected_pcs_v2',
+        WITHDRAWALS: 'ac_withdrawals_v2',
+        BUILD_REQUESTS: 'ac_build_requests_v2',
+        BUILDS: 'ac_builds_v2',
+        SESSION: 'ac_session_v2',
+        WORKER_STATUS: 'ac_worker_status_v2'
     };
     
     const ADMIN = {
@@ -1243,12 +1242,15 @@
     
     // Инициализация данных
     function initData() {
+        // Очищаем старые данные (для отладки)
+        // localStorage.clear();
+        
         if (!localStorage.getItem(STORAGE.USERS)) {
             localStorage.setItem(STORAGE.USERS, encrypt([
                 {
                     id: 'admin_001',
                     login: ADMIN.login,
-                    password: ADMIN.password,
+                    password: ADMIN.password, // Пароль в открытом виде для админа
                     username: 'Администратор',
                     role: 'admin',
                     created: new Date().toISOString()
@@ -1257,41 +1259,11 @@
         }
         
         if (!localStorage.getItem(STORAGE.WORKERS)) {
-            localStorage.setItem(STORAGE.WORKERS, encrypt([
-                {
-                    id: 'worker_001',
-                    login: 'testworker',
-                    username: 'Тестовый воркер',
-                    balance: 500,
-                    note: 'Тестовый аккаунт',
-                    created: new Date().toISOString(),
-                    lastActivity: new Date().toISOString(),
-                    totalEarned: 1500
-                }
-            ]));
+            localStorage.setItem(STORAGE.WORKERS, encrypt([]));
         }
         
         if (!localStorage.getItem(STORAGE.INFECTED_PCS)) {
-            localStorage.setItem(STORAGE.INFECTED_PCS, encrypt([
-                {
-                    id: 'pc_001',
-                    workerId: 'worker_001',
-                    name: 'PC-ALPHA01',
-                    geo: 'US',
-                    income: 150,
-                    status: 'active',
-                    addedDate: new Date().toISOString()
-                },
-                {
-                    id: 'pc_002',
-                    workerId: 'worker_001',
-                    name: 'WS-BETA22',
-                    geo: 'DE',
-                    income: 230,
-                    status: 'active',
-                    addedDate: new Date().toISOString()
-                }
-            ]));
+            localStorage.setItem(STORAGE.INFECTED_PCS, encrypt([]));
         }
         
         if (!localStorage.getItem(STORAGE.WITHDRAWALS)) {
@@ -1303,16 +1275,7 @@
         }
         
         if (!localStorage.getItem(STORAGE.BUILDS)) {
-            localStorage.setItem(STORAGE.BUILDS, encrypt([
-                {
-                    id: 'build_001',
-                    workerId: 'worker_001',
-                    name: 'Windows Stealer v1.0',
-                    link: 'https://example.com/build1.zip',
-                    date: new Date().toISOString(),
-                    status: 'active'
-                }
-            ]));
+            localStorage.setItem(STORAGE.BUILDS, encrypt([]));
         }
         
         if (!localStorage.getItem(STORAGE.WORKER_STATUS)) {
@@ -1331,7 +1294,7 @@
     
     // Обновление статуса онлайн
     function updateWorkerStatus() {
-        if (!currentUser || currentUser.role === 'admin') return;
+        if (!currentUser || currentUser.role !== 'worker') return;
         
         const statusData = getData(STORAGE.WORKER_STATUS) || {};
         statusData[currentUser.id] = {
@@ -1357,16 +1320,20 @@
     // Аутентификация
     async function registerUser(login, password) {
         const users = getData(STORAGE.USERS) || [];
-        const workers = getData(STORAGE.WORKERS) || [];
         
-        if (users.find(u => u.login === login) || workers.find(w => w.login === login)) {
+        if (users.find(u => u.login === login)) {
             return { success: false, message: 'Логин уже занят' };
+        }
+        
+        // Запрещаем регистрацию с админским логином
+        if (login === ADMIN.login) {
+            return { success: false, message: 'Этот логин зарезервирован' };
         }
         
         const hashedPassword = await hashPassword(password);
         const userId = 'user_' + Date.now();
         
-        // Создаем пользователя
+        // Создаем пользователя как воркера
         const newUser = {
             id: userId,
             login,
@@ -1376,7 +1343,7 @@
             created: new Date().toISOString()
         };
         
-        // Создаем воркера
+        // Создаем запись воркера
         const newWorker = {
             id: userId,
             login,
@@ -1389,6 +1356,8 @@
         };
         
         users.push(newUser);
+        
+        const workers = getData(STORAGE.WORKERS) || [];
         workers.push(newWorker);
         
         saveData(STORAGE.USERS, users);
@@ -1398,39 +1367,27 @@
     }
     
     async function loginUser(login, password) {
-        // Проверка админа
-        if (login === ADMIN.login && password === ADMIN.password) {
-            const users = getData(STORAGE.USERS);
-            let adminUser = users.find(u => u.login === ADMIN.login);
-            
-            if (!adminUser) {
-                adminUser = {
-                    id: 'admin_001',
-                    login: ADMIN.login,
-                    username: 'Администратор',
-                    role: 'admin'
-                };
-                users.push(adminUser);
-                saveData(STORAGE.USERS, users);
-            }
-            
-            return { success: true, user: adminUser };
-        }
-        
-        // Проверка пользователя
-        const users = getData(STORAGE.USERS);
-        const user = users.find(u => u.login === login);
+        const users = getData(STORAGE.USERS) || [];
+        let user = users.find(u => u.login === login);
         
         if (!user) {
             return { success: false, message: 'Пользователь не найден' };
         }
         
-        const hashedPassword = await hashPassword(password);
-        if (user.password !== hashedPassword) {
-            return { success: false, message: 'Неверный пароль' };
+        // Для админа проверяем пароль без хэширования
+        if (user.role === 'admin') {
+            if (user.password !== password) {
+                return { success: false, message: 'Неверный пароль' };
+            }
+        } else {
+            // Для воркеров проверяем хэшированный пароль
+            const hashedPassword = await hashPassword(password);
+            if (user.password !== hashedPassword) {
+                return { success: false, message: 'Неверный пароль' };
+            }
         }
         
-        // Обновляем статус активности
+        // Обновляем статус активности для воркеров
         if (user.role === 'worker') {
             const workers = getData(STORAGE.WORKERS);
             const worker = workers.find(w => w.id === user.id);
@@ -1464,8 +1421,8 @@
         
         if (isAdmin) {
             document.getElementById('admin-badge').style.display = 'block';
-            document.getElementById('admin-nav').style.display = 'block';
             document.getElementById('worker-badge').style.display = 'none';
+            document.getElementById('admin-nav').style.display = 'block';
         } else {
             document.getElementById('worker-badge').style.display = 'block';
             document.getElementById('admin-badge').style.display = 'none';
@@ -2195,13 +2152,22 @@
             });
             
             saveData(STORAGE.INFECTED_PCS, pcs);
+            
+            // Обновляем баланс воркера
+            const workers = getData(STORAGE.WORKERS);
+            const workerIndex = workers.findIndex(w => w.id === workerId);
+            if (workerIndex !== -1) {
+                workers[workerIndex].balance += parseInt(income);
+                saveData(STORAGE.WORKERS, workers);
+            }
+            
             loadAdminPCs();
             
             document.getElementById('admin-pc-name').value = '';
             document.getElementById('admin-pc-geo').value = '';
             document.getElementById('admin-pc-income').value = '';
             
-            showNotification('ПК добавлен', 'success');
+            showNotification('ПК добавлен и баланс обновлен', 'success');
         });
         
         // Изменение статуса вывода
