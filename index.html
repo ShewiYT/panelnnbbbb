@@ -3,96 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>𝕬𝖓𝖙𝖎𝖈𝖍𝖗𝖎𝖘𝖙 - Киберпанк Панель</title>
+    <title>𝕬𝖓𝖙𝖎𝖈𝖍𝖗𝖎𝖘𝖙</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
-        * {
+        /* Защита стилей - сложные селекторы */
+        *[d*="a"][a*="t"][t*="a"] {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
             user-select: none;
         }
 
         :root {
-            --bg-dark: #0a0a0a;
-            --bg-darker: #050505;
-            --bg-card: #111111;
-            --border-color: #222222;
-            --text-primary: #e0e0e0;
-            --text-secondary: #888888;
-            --neon-red: #ff003c;
-            --neon-green: #00ff88;
-            --neon-blue: #0088ff;
-            --neon-purple: #aa00ff;
-            --neon-cyan: #00eeff;
-            --gothic-font: 'UnifrakturMaguntia', cursive;
-            --tech-font: 'Orbitron', sans-serif;
-            --mono-font: 'Share Tech Mono', monospace;
+            --clr-bg: #0a0a0a;
+            --clr-bg2: #050505;
+            --clr-card: #111111;
+            --clr-border: #222222;
+            --clr-text1: #e0e0e0;
+            --clr-text2: #888888;
+            --clr-red: #ff003c;
+            --clr-green: #00ff88;
+            --clr-blue: #0088ff;
+            --clr-purple: #aa00ff;
+            --clr-cyan: #00eeff;
+            --font-gothic: 'UnifrakturMaguntia', cursive;
+            --font-tech: 'Orbitron', sans-serif;
+            --font-mono: 'Share Tech Mono', monospace;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-primary);
-            font-family: var(--mono-font);
+            background-color: var(--clr-bg);
+            color: var(--clr-text1);
+            font-family: var(--font-mono);
             min-height: 100vh;
             overflow-x: hidden;
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(255, 0, 60, 0.03) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 136, 255, 0.03) 0%, transparent 20%),
-                linear-gradient(to bottom, transparent 95%, rgba(0, 255, 136, 0.05) 100%);
+                radial-gradient(circle at 90% 80%, rgba(0, 136, 255, 0.03) 0%, transparent 20%);
             position: relative;
         }
 
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M0,0 L100,100 M100,0 L0,100" stroke="rgba(255,0,60,0.03)" stroke-width="0.5"/></svg>');
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        /* Главный заголовок */
         .main-title {
-            font-family: var(--gothic-font);
+            font-family: var(--font-gothic);
             font-size: 3.5rem;
             text-align: center;
             margin: 20px 0;
-            color: var(--neon-red);
-            text-shadow: 
-                0 0 10px var(--neon-red),
-                0 0 20px rgba(255, 0, 60, 0.5);
+            color: var(--clr-red);
+            text-shadow: 0 0 10px var(--clr-red);
             letter-spacing: 2px;
-            position: relative;
-            display: inline-block;
-            width: 100%;
         }
 
-        .main-title::after {
-            content: "";
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--neon-red), transparent);
-        }
-
-        /* Контейнер приложения */
         .app-container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            position: relative;
             min-height: calc(100vh - 120px);
         }
 
-        /* Экран авторизации */
         .auth-screen {
             display: flex;
             flex-direction: column;
@@ -103,15 +74,12 @@
         }
 
         .auth-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 0;
+            background-color: var(--clr-card);
+            border: 1px solid var(--clr-border);
             padding: 40px;
             width: 100%;
             max-width: 450px;
-            box-shadow: 
-                0 0 20px rgba(255, 0, 60, 0.1),
-                inset 0 0 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.1);
             position: relative;
             overflow: hidden;
         }
@@ -123,15 +91,15 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, var(--neon-red), var(--neon-purple), var(--neon-blue));
+            background: linear-gradient(90deg, var(--clr-red), var(--clr-purple), var(--clr-blue));
         }
 
         .auth-title {
-            font-family: var(--tech-font);
+            font-family: var(--font-tech);
             font-size: 1.8rem;
             margin-bottom: 30px;
             text-align: center;
-            color: var(--neon-cyan);
+            color: var(--clr-cyan);
             text-transform: uppercase;
             letter-spacing: 3px;
         }
@@ -144,7 +112,7 @@
         .form-label {
             display: block;
             margin-bottom: 8px;
-            color: var(--text-secondary);
+            color: var(--clr-text2);
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -154,16 +122,16 @@
             width: 100%;
             padding: 12px 15px;
             background-color: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            font-family: var(--mono-font);
+            border: 1px solid var(--clr-border);
+            color: var(--clr-text1);
+            font-family: var(--font-mono);
             font-size: 1rem;
             transition: all 0.3s;
         }
 
         .form-input:focus {
             outline: none;
-            border-color: var(--neon-blue);
+            border-color: var(--clr-blue);
             box-shadow: 0 0 10px rgba(0, 136, 255, 0.3);
         }
 
@@ -171,34 +139,15 @@
             display: inline-block;
             padding: 12px 25px;
             background-color: transparent;
-            border: 1px solid var(--neon-red);
-            color: var(--neon-red);
-            font-family: var(--tech-font);
+            border: 1px solid var(--clr-red);
+            color: var(--clr-red);
+            font-family: var(--font-tech);
             font-size: 1rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.3s;
             text-align: center;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .btn::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 0, 60, 0.2), transparent);
-            transition: left 0.5s;
-            z-index: -1;
-        }
-
-        .btn:hover::before {
-            left: 100%;
         }
 
         .btn:hover {
@@ -208,58 +157,34 @@
 
         .btn-primary {
             background-color: rgba(255, 0, 60, 0.1);
-            border-color: var(--neon-red);
-            color: var(--neon-red);
             width: 100%;
             margin-top: 10px;
-        }
-
-        .btn-success {
-            border-color: var(--neon-green);
-            color: var(--neon-green);
-        }
-
-        .btn-success:hover {
-            background-color: rgba(0, 255, 136, 0.1);
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
-        }
-
-        .btn-secondary {
-            border-color: var(--neon-blue);
-            color: var(--neon-blue);
-            margin-top: 15px;
-            width: 100%;
         }
 
         .auth-switch {
             text-align: center;
             margin-top: 25px;
-            color: var(--text-secondary);
+            color: var(--clr-text2);
             font-size: 0.9rem;
         }
 
         .auth-switch a {
-            color: var(--neon-blue);
+            color: var(--clr-blue);
             text-decoration: none;
             margin-left: 5px;
             cursor: pointer;
         }
 
-        .auth-switch a:hover {
-            text-decoration: underline;
-        }
-
-        /* Боковое меню */
         .sidebar {
             position: fixed;
             top: 0;
             left: -300px;
             width: 300px;
             height: 100vh;
-            background-color: var(--bg-darker);
-            border-right: 1px solid var(--border-color);
+            background-color: var(--clr-bg2);
+            border-right: 1px solid var(--clr-border);
             z-index: 1000;
-            transition: left 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            transition: left 0.4s;
             box-shadow: 5px 0 25px rgba(0, 0, 0, 0.7);
             overflow-y: auto;
         }
@@ -270,16 +195,16 @@
 
         .sidebar-header {
             padding: 25px 20px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--clr-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
         .sidebar-title {
-            font-family: var(--tech-font);
+            font-family: var(--font-tech);
             font-size: 1.3rem;
-            color: var(--neon-red);
+            color: var(--clr-red);
             text-transform: uppercase;
             letter-spacing: 2px;
         }
@@ -287,19 +212,14 @@
         .close-sidebar {
             background: none;
             border: none;
-            color: var(--text-secondary);
+            color: var(--clr-text2);
             font-size: 1.5rem;
             cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .close-sidebar:hover {
-            color: var(--neon-red);
         }
 
         .user-info {
             padding: 20px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--clr-border);
             display: flex;
             align-items: center;
         }
@@ -308,7 +228,7 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--neon-red), var(--neon-purple));
+            background: linear-gradient(135deg, var(--clr-red), var(--clr-purple));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -317,21 +237,21 @@
         }
 
         .user-details h3 {
-            font-family: var(--tech-font);
+            font-family: var(--font-tech);
             font-size: 1.1rem;
             margin-bottom: 5px;
-            color: var(--neon-cyan);
+            color: var(--clr-cyan);
         }
 
         .user-details p {
-            color: var(--text-secondary);
+            color: var(--clr-text2);
             font-size: 0.9rem;
         }
 
         .admin-badge {
             display: inline-block;
             background-color: rgba(255, 0, 60, 0.2);
-            color: var(--neon-red);
+            color: var(--clr-red);
             padding: 3px 8px;
             border-radius: 3px;
             font-size: 0.7rem;
@@ -346,11 +266,11 @@
         .nav-item {
             display: block;
             padding: 15px 20px;
-            color: var(--text-primary);
+            color: var(--clr-text1);
             text-decoration: none;
             border-left: 3px solid transparent;
             transition: all 0.3s;
-            font-family: var(--tech-font);
+            font-family: var(--font-tech);
             text-transform: uppercase;
             letter-spacing: 1px;
             font-size: 0.9rem;
@@ -358,14 +278,14 @@
 
         .nav-item:hover {
             background-color: rgba(255, 0, 60, 0.05);
-            border-left-color: var(--neon-red);
-            color: var(--neon-red);
+            border-left-color: var(--clr-red);
+            color: var(--clr-red);
         }
 
         .nav-item.active {
             background-color: rgba(255, 0, 60, 0.1);
-            border-left-color: var(--neon-red);
-            color: var(--neon-red);
+            border-left-color: var(--clr-red);
+            color: var(--clr-red);
         }
 
         .nav-item i {
@@ -380,7 +300,6 @@
             text-align: center;
         }
 
-        /* Кнопка меню */
         .menu-toggle {
             position: fixed;
             top: 20px;
@@ -388,24 +307,16 @@
             width: 50px;
             height: 50px;
             background-color: rgba(0, 0, 0, 0.7);
-            border: 1px solid var(--border-color);
-            border-radius: 0;
-            color: var(--neon-red);
+            border: 1px solid var(--clr-border);
+            color: var(--clr-red);
             font-size: 1.5rem;
             cursor: pointer;
             z-index: 999;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
         }
 
-        .menu-toggle:hover {
-            background-color: rgba(255, 0, 60, 0.1);
-            box-shadow: 0 0 15px rgba(255, 0, 60, 0.3);
-        }
-
-        /* Основной контент */
         .main-content {
             padding: 20px;
             margin-left: 0;
@@ -419,27 +330,26 @@
         .page-header {
             margin-bottom: 30px;
             padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--clr-border);
         }
 
         .page-title {
-            font-family: var(--tech-font);
+            font-family: var(--font-tech);
             font-size: 2rem;
-            color: var(--neon-green);
+            color: var(--clr-green);
             text-transform: uppercase;
             letter-spacing: 2px;
             margin-bottom: 10px;
         }
 
         .page-subtitle {
-            color: var(--text-secondary);
+            color: var(--clr-text2);
             font-size: 1rem;
         }
 
-        /* Таблицы */
         .table-container {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
+            background-color: var(--clr-card);
+            border: 1px solid var(--clr-border);
             overflow-x: auto;
         }
 
@@ -450,23 +360,18 @@
 
         .data-table th {
             background-color: rgba(0, 0, 0, 0.5);
-            color: var(--neon-cyan);
-            font-family: var(--tech-font);
+            color: var(--clr-cyan);
+            font-family: var(--font-tech);
             text-transform: uppercase;
-            letter-spacing: 1px;
             font-size: 0.9rem;
             padding: 15px;
             text-align: left;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--clr-border);
         }
 
         .data-table td {
             padding: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .data-table tr:last-child td {
-            border-bottom: none;
+            border-bottom: 1px solid var(--clr-border);
         }
 
         .data-table tr:hover {
@@ -479,7 +384,6 @@
             border-radius: 3px;
             font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .status-pending {
@@ -489,18 +393,17 @@
 
         .status-completed {
             background-color: rgba(0, 255, 136, 0.2);
-            color: var(--neon-green);
+            color: var(--clr-green);
         }
 
         .status-rejected {
             background-color: rgba(255, 0, 60, 0.2);
-            color: var(--neon-red);
+            color: var(--clr-red);
         }
 
-        /* Формы */
         .form-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
+            background-color: var(--clr-card);
+            border: 1px solid var(--clr-border);
             padding: 30px;
             max-width: 600px;
             margin: 0 auto;
@@ -514,24 +417,15 @@
 
         .checkbox-group input {
             margin-right: 10px;
-            width: 18px;
-            height: 18px;
-        }
-
-        .checkbox-group label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
         }
 
         .info-box {
             background-color: rgba(0, 136, 255, 0.1);
-            border-left: 3px solid var(--neon-blue);
+            border-left: 3px solid var(--clr-blue);
             padding: 15px;
             margin-bottom: 20px;
-            font-size: 0.9rem;
         }
 
-        /* Модальные окна */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -554,34 +448,32 @@
         }
 
         .modal {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
+            background-color: var(--clr-card);
+            border: 1px solid var(--clr-border);
             width: 90%;
             max-width: 500px;
-            position: relative;
             box-shadow: 0 0 40px rgba(255, 0, 60, 0.2);
         }
 
         .modal-header {
             padding: 20px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--clr-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
         .modal-title {
-            font-family: var(--tech-font);
+            font-family: var(--font-tech);
             font-size: 1.5rem;
-            color: var(--neon-red);
+            color: var(--clr-red);
             text-transform: uppercase;
-            letter-spacing: 2px;
         }
 
         .modal-close {
             background: none;
             border: none;
-            color: var(--text-secondary);
+            color: var(--clr-text2);
             font-size: 1.5rem;
             cursor: pointer;
         }
@@ -592,13 +484,12 @@
 
         .modal-footer {
             padding: 20px;
-            border-top: 1px solid var(--border-color);
+            border-top: 1px solid var(--clr-border);
             display: flex;
             justify-content: flex-end;
             gap: 10px;
         }
 
-        /* Действия в таблицах */
         .action-buttons {
             display: flex;
             gap: 8px;
@@ -606,61 +497,30 @@
 
         .action-btn {
             background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
+            border: 1px solid var(--clr-border);
+            color: var(--clr-text2);
             width: 32px;
             height: 32px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
         }
 
         .action-btn:hover {
             background-color: rgba(255, 0, 60, 0.1);
-            border-color: var(--neon-red);
-            color: var(--neon-red);
+            border-color: var(--clr-red);
+            color: var(--clr-red);
         }
 
-        .dropdown-menu {
-            position: absolute;
-            background-color: var(--bg-darker);
-            border: 1px solid var(--border-color);
-            min-width: 150px;
-            z-index: 100;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            display: none;
-        }
-
-        .dropdown-menu.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            display: block;
-            padding: 10px 15px;
-            color: var(--text-primary);
-            text-decoration: none;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .dropdown-item:hover {
-            background-color: rgba(255, 0, 60, 0.1);
-            color: var(--neon-red);
-        }
-
-        /* Уведомления */
         .notification {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background-color: var(--bg-card);
-            border: 1px solid var(--neon-green);
+            background-color: var(--clr-card);
+            border: 1px solid var(--clr-green);
             padding: 15px 20px;
             min-width: 300px;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
             transform: translateX(150%);
             transition: transform 0.5s;
             z-index: 3000;
@@ -670,29 +530,6 @@
             transform: translateX(0);
         }
 
-        .notification-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .notification-title {
-            font-family: var(--tech-font);
-            color: var(--neon-green);
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .notification-close {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-        }
-
-        /* Адаптивность */
         @media (max-width: 768px) {
             .main-title {
                 font-size: 2.5rem;
@@ -717,48 +554,16 @@
             }
         }
 
-        /* Анимации */
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-            100% { transform: translate(0); }
-        }
-
-        .glitch-effect {
-            animation: glitch 0.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        /* Закрытие контекстного меню */
-        .no-context {
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+        .page-content {
+            display: none;
         }
     </style>
 </head>
-<body class="no-context">
-    <!-- Аудио для уведомлений -->
+<body>
     <audio id="notification-sound" preload="auto">
         <source src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Уведомление -->
     <div class="notification" id="global-notification">
         <div class="notification-header">
             <div class="notification-title">Уведомление</div>
@@ -767,9 +572,7 @@
         <div class="notification-body" id="notification-body"></div>
     </div>
 
-    <!-- Основное приложение -->
     <div id="app">
-        <!-- Экран авторизации -->
         <div id="auth-screen" class="auth-screen">
             <h1 class="main-title">𝕬𝖓𝖙𝖎𝖈𝖍𝖗𝖎𝖘𝖙</h1>
             <div class="app-container">
@@ -777,7 +580,7 @@
                     <h2 class="auth-title" id="auth-form-title">Вход в систему</h2>
                     <div class="form-group">
                         <label class="form-label" for="login-username">Логин</label>
-                        <input type="text" id="login-username" class="form-input" placeholder="Введите ваш логин">
+                        <input type="text" id="login-username" class="form-input" placeholder="Введите логин">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="login-password">Пароль</label>
@@ -789,7 +592,7 @@
                     </div>
                 </div>
 
-                <div class="auth-card" id="register-card" style="display: none;">
+                <div class="auth-card" id="register-card" style="display:none">
                     <h2 class="auth-title">Регистрация</h2>
                     <div class="form-group">
                         <label class="form-label" for="register-username">Логин</label>
@@ -800,7 +603,7 @@
                         <input type="password" id="register-password" class="form-input" placeholder="Минимум 6 символов">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="register-confirm">Подтверждение пароля</label>
+                        <label class="form-label" for="register-confirm">Подтверждение</label>
                         <input type="password" id="register-confirm" class="form-input" placeholder="Повторите пароль">
                     </div>
                     <button class="btn btn-primary" id="register-btn">Зарегистрироваться</button>
@@ -811,9 +614,7 @@
             </div>
         </div>
 
-        <!-- Основной интерфейс -->
-        <div id="main-interface" style="display: none;">
-            <!-- Боковое меню -->
+        <div id="main-interface" style="display:none">
             <div class="sidebar" id="sidebar">
                 <div class="sidebar-header">
                     <div class="sidebar-title">Навигация</div>
@@ -826,7 +627,7 @@
                     <div class="user-details">
                         <h3 id="sidebar-username">User</h3>
                         <p id="sidebar-login">user</p>
-                        <div id="admin-badge" class="admin-badge" style="display: none;">Администратор</div>
+                        <div id="admin-badge" class="admin-badge" style="display:none">Администратор</div>
                     </div>
                 </div>
                 <div class="nav-menu">
@@ -842,9 +643,9 @@
                     <a href="#/my-builds" class="nav-item" id="nav-my-builds">
                         <i class="fas fa-cube"></i> Мои билды
                     </a>
-                    <div id="admin-nav" style="display: none;">
+                    <div id="admin-nav" style="display:none">
                         <a href="#/admin-infected" class="nav-item" id="nav-admin-infected">
-                            <i class="fas fa-edit"></i> Управление зараженными
+                            <i class="fas fa-edit"></i> Управление ПК
                         </a>
                         <a href="#/admin-withdraw" class="nav-item" id="nav-admin-withdraw">
                             <i class="fas fa-list-alt"></i> Заявки на вывод
@@ -859,15 +660,12 @@
                 </button>
             </div>
 
-            <!-- Кнопка меню -->
             <button class="menu-toggle" id="menu-toggle">
                 <i class="fas fa-bars"></i>
             </button>
 
-            <!-- Основной контент -->
             <div class="main-content">
-                <!-- Зараженные (пользователь) -->
-                <div id="page-infected" class="page-content" style="display: none;">
+                <div id="page-infected" class="page-content">
                     <div class="page-header">
                         <h2 class="page-title">Зараженные системы</h2>
                         <p class="page-subtitle">Список зараженных ПК и их доходность</p>
@@ -878,25 +676,22 @@
                                 <tr>
                                     <th>Название ПК</th>
                                     <th>ГЕО</th>
-                                    <th>Примерный доход ($)</th>
+                                    <th>Доход ($)</th>
                                 </tr>
                             </thead>
-                            <tbody id="infected-table-body">
-                                <!-- Данные загружаются через JS -->
-                            </tbody>
+                            <tbody id="infected-table-body"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Вывод средств -->
-                <div id="page-withdraw" class="page-content" style="display: none;">
+                <div id="page-withdraw" class="page-content">
                     <div class="page-header">
                         <h2 class="page-title">Вывод средств</h2>
-                        <p class="page-subtitle">Минимальная сумма вывода: 50$</p>
+                        <p class="page-subtitle">Минимальная сумма: 50$</p>
                     </div>
                     <div class="form-card">
                         <div class="form-group">
-                            <label class="form-label" for="withdraw-amount">Сумма вывода ($)</label>
+                            <label class="form-label" for="withdraw-amount">Сумма ($)</label>
                             <input type="number" id="withdraw-amount" class="form-input" placeholder="50" min="50">
                         </div>
                         <div class="form-group">
@@ -905,36 +700,34 @@
                         </div>
                         <div class="checkbox-group">
                             <input type="checkbox" id="withdraw-confirm">
-                            <label for="withdraw-confirm">Проверил правильность адреса</label>
+                            <label for="withdraw-confirm">Проверил адрес</label>
                         </div>
                         <div class="info-box">
-                            <i class="fas fa-info-circle"></i> Вывод средств обрабатывается в течение 24 часов. Комиссия сети BTC оплачивается отправителем.
+                            Вывод обрабатывается в течение 24 часов.
                         </div>
-                        <button class="btn btn-primary" id="withdraw-submit" disabled>Отправить заявку</button>
+                        <button class="btn btn-primary" id="withdraw-submit" disabled>Отправить</button>
                     </div>
                 </div>
 
-                <!-- Получить билд -->
-                <div id="page-get-build" class="page-content" style="display: none;">
+                <div id="page-get-build" class="page-content">
                     <div class="page-header">
                         <h2 class="page-title">Получить билд</h2>
                         <p class="page-subtitle">Заказать индивидуальную сборку</p>
                     </div>
                     <div class="form-card">
                         <div class="info-box">
-                            <i class="fas fa-exclamation-triangle"></i> Билд будет сделан в течение 30-60 минут после подтверждения заявки администратором.
+                            Билд будет сделан в течение 30-60 минут.
                         </div>
-                        <p style="margin-bottom: 30px; line-height: 1.6;">
-                            Для создания индивидуального билда нажмите кнопку ниже. После подтверждения заявка будет отправлена администратору для обработки.
+                        <p style="margin-bottom:30px">
+                            Для создания индивидуального билда нажмите кнопку ниже.
                         </p>
-                        <button class="btn btn-primary pulse" id="request-build-btn">
+                        <button class="btn btn-primary" id="request-build-btn">
                             <i class="fas fa-file-download"></i> Запросить билд
                         </button>
                     </div>
                 </div>
 
-                <!-- Мои билды -->
-                <div id="page-my-builds" class="page-content" style="display: none;">
+                <div id="page-my-builds" class="page-content">
                     <div class="page-header">
                         <h2 class="page-title">Мои билды</h2>
                         <p class="page-subtitle">История полученных сборок</p>
@@ -948,45 +741,35 @@
                                     <th>Действия</th>
                                 </tr>
                             </thead>
-                            <tbody id="my-builds-table-body">
-                                <!-- Данные загружаются через JS -->
-                            </tbody>
+                            <tbody id="my-builds-table-body"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Админ: Управление зараженными -->
-                <div id="page-admin-infected" class="page-content" style="display: none;">
+                <div id="page-admin-infected" class="page-content">
                     <div class="page-header">
-                        <h2 class="page-title">Управление зараженными</h2>
-                        <p class="page-subtitle">Добавление, редактирование и удаление записей</p>
+                        <h2 class="page-title">Управление ПК</h2>
+                        <p class="page-subtitle">Добавление и редактирование записей</p>
                     </div>
-                    <div class="form-card" style="margin-bottom: 30px;">
-                        <h3 style="color: var(--neon-cyan); margin-bottom: 20px; font-family: var(--tech-font);">Добавить/редактировать ПК</h3>
+                    <div class="form-card" style="margin-bottom:30px">
+                        <h3 style="color:var(--clr-cyan);margin-bottom:20px">Добавить/редактировать ПК</h3>
                         <div class="form-group">
                             <label class="form-label" for="admin-pc-name">Название ПК</label>
                             <input type="text" id="admin-pc-name" class="form-input" placeholder="DESKTOP-XXXXXX">
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="admin-pc-geo">ГЕО</label>
-                            <input type="text" id="admin-pc-geo" class="form-input" placeholder="RU, US, DE, etc.">
+                            <input type="text" id="admin-pc-geo" class="form-input" placeholder="RU, US, DE">
                         </div>
                         <div class="form-group">
-                            <label class="form-label" for="admin-pc-income">Примерный доход ($)</label>
+                            <label class="form-label" for="admin-pc-income">Доход ($)</label>
                             <input type="number" id="admin-pc-income" class="form-input" placeholder="100">
                         </div>
                         <div class="action-buttons">
-                            <button class="btn btn-success" id="admin-add-pc">
-                                <i class="fas fa-plus"></i> Добавить
-                            </button>
-                            <button class="btn btn-secondary" id="admin-update-pc" style="display: none;">
-                                <i class="fas fa-save"></i> Сохранить
-                            </button>
-                            <button class="btn" id="admin-cancel-edit" style="display: none;">
-                                <i class="fas fa-times"></i> Отмена
-                            </button>
+                            <button class="btn btn-primary" id="admin-add-pc">Добавить</button>
+                            <button class="btn btn-primary" id="admin-update-pc" style="display:none">Сохранить</button>
+                            <button class="btn" id="admin-cancel-edit" style="display:none">Отмена</button>
                         </div>
-                        <input type="hidden" id="admin-edit-id">
                     </div>
                     <div class="table-container">
                         <table class="data-table" id="admin-infected-table">
@@ -994,22 +777,19 @@
                                 <tr>
                                     <th>Название ПК</th>
                                     <th>ГЕО</th>
-                                    <th>Примерный доход ($)</th>
+                                    <th>Доход ($)</th>
                                     <th>Действия</th>
                                 </tr>
                             </thead>
-                            <tbody id="admin-infected-table-body">
-                                <!-- Данные загружаются через JS -->
-                            </tbody>
+                            <tbody id="admin-infected-table-body"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Админ: Заявки на вывод -->
-                <div id="page-admin-withdraw" class="page-content" style="display: none;">
+                <div id="page-admin-withdraw" class="page-content">
                     <div class="page-header">
                         <h2 class="page-title">Заявки на вывод</h2>
-                        <p class="page-subtitle">Управление заявками на вывод средств</p>
+                        <p class="page-subtitle">Управление заявками</p>
                     </div>
                     <div class="table-container">
                         <table class="data-table" id="admin-withdraw-table">
@@ -1023,18 +803,15 @@
                                     <th>Действия</th>
                                 </tr>
                             </thead>
-                            <tbody id="admin-withdraw-table-body">
-                                <!-- Данные загружаются через JS -->
-                            </tbody>
+                            <tbody id="admin-withdraw-table-body"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Админ: Заявки на билд -->
-                <div id="page-admin-build-requests" class="page-content" style="display: none;">
+                <div id="page-admin-build-requests" class="page-content">
                     <div class="page-header">
                         <h2 class="page-title">Заявки на билд</h2>
-                        <p class="page-subtitle">Обработка запросов на создание билдов</p>
+                        <p class="page-subtitle">Обработка запросов</p>
                     </div>
                     <div class="table-container">
                         <table class="data-table" id="admin-build-requests-table">
@@ -1046,9 +823,7 @@
                                     <th>Действия</th>
                                 </tr>
                             </thead>
-                            <tbody id="admin-build-requests-table-body">
-                                <!-- Данные загружаются через JS -->
-                            </tbody>
+                            <tbody id="admin-build-requests-table-body"></tbody>
                         </table>
                     </div>
                 </div>
@@ -1056,21 +831,15 @@
         </div>
     </div>
 
-    <!-- Модальное окно подтверждения билда -->
     <div class="modal-overlay" id="build-confirm-modal">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title">Запрос билд</div>
+                <div class="modal-title">Запрос билда</div>
                 <button class="modal-close" id="build-modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <p style="margin-bottom: 20px; line-height: 1.6;">
-                    <i class="fas fa-exclamation-triangle" style="color: var(--neon-red); margin-right: 10px;"></i>
-                    <strong>Внимание!</strong> Билд будет сделан в течение 30-60 минут после подтверждения заявки администратором.
-                </p>
-                <p style="line-height: 1.6;">
-                    После подтверждения заявка будет отправлена администратору. Вы получите уведомление, когда билд будет готов.
-                </p>
+                <p><strong>Внимание!</strong> Билд будет сделан в течение 30-60 минут.</p>
+                <p>Заявка будет отправлена администратору.</p>
             </div>
             <div class="modal-footer">
                 <button class="btn" id="build-modal-cancel">Отмена</button>
@@ -1079,7 +848,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно выдачи билда -->
     <div class="modal-overlay" id="issue-build-modal">
         <div class="modal">
             <div class="modal-header">
@@ -1091,9 +859,6 @@
                     <label class="form-label" for="build-link">Ссылка на билд</label>
                     <input type="text" id="build-link" class="form-input" placeholder="https://example.com/build.zip">
                 </div>
-                <p style="margin-top: 15px; color: var(--text-secondary); font-size: 0.9rem;">
-                    После подтверждения ссылка будет сохранена и станет доступна пользователю.
-                </p>
             </div>
             <div class="modal-footer">
                 <button class="btn" id="issue-modal-cancel">Отмена</button>
@@ -1102,7 +867,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно изменения статуса вывода -->
     <div class="modal-overlay" id="withdraw-status-modal">
         <div class="modal">
             <div class="modal-header">
@@ -1118,9 +882,6 @@
                         <option value="rejected">Отказано</option>
                     </select>
                 </div>
-                <p style="margin-top: 15px; color: var(--text-secondary); font-size: 0.9rem;">
-                    После изменения статуса пользователь получит соответствующее уведомление.
-                </p>
             </div>
             <div class="modal-footer">
                 <button class="btn" id="status-modal-cancel">Отмена</button>
@@ -1129,377 +890,326 @@
         </div>
     </div>
 
-    <script>
-        // ==================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ====================
-        let currentUser = null;
-        let isAdmin = false;
-        let editPCId = null;
-        let editWithdrawId = null;
-        let editBuildRequestId = null;
-
-        // Ключи для localStorage
-        const STORAGE_KEYS = {
-            USERS: 'anticrist_users',
-            INFECTED_PCS: 'anticrist_infected_pcs',
-            WITHDRAWALS: 'anticrist_withdrawals',
-            BUILD_REQUESTS: 'anticrist_build_requests',
-            BUILDS: 'anticrist_builds',
-            SESSION: 'anticrist_session'
-        };
-
-        // Админский аккаунт
-        const ADMIN_CREDENTIALS = {
-            login: 'Kovalchuk',
-            password: '99Adidas.Shewi12011979'
-        };
-
-        // ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
-
-        // Простое шифрование XOR
-        function xorEncrypt(text, key = 'anticrist_key') {
-            let result = '';
-            for (let i = 0; i < text.length; i++) {
-                result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-            }
-            return btoa(result);
+<script>
+// Защита от просмотра кода
+(function() {
+    'use strict';
+    
+    // Блокировка контекстного меню
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+    });
+    
+    // Блокировка клавиш
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+S, Ctrl+U, F12, Ctrl+Shift+I, Ctrl+Shift+J
+        if (
+            (e.ctrlKey && (e.key === 's' || e.key === 'u')) ||
+            e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))
+        ) {
+            e.preventDefault();
+            return false;
         }
+    });
+    
+    // Защита от копирования
+    document.addEventListener('copy', function(e) {
+        e.preventDefault();
+        showNotification('Копирование запрещено', 'error');
+    });
+})();
 
-        function xorDecrypt(encrypted, key = 'anticrist_key') {
+// Основной код приложения
+(function() {
+    'use strict';
+    
+    let currentUser = null;
+    let isAdmin = false;
+    
+    // Хранилище данных
+    const STORAGE = {
+        USERS: 'ac_users',
+        PCS: 'ac_pcs',
+        WITHDRAWALS: 'ac_withdrawals',
+        BUILD_REQUESTS: 'ac_build_requests',
+        BUILDS: 'ac_builds',
+        SESSION: 'ac_session'
+    };
+    
+    // Админские данные
+    const ADMIN = {
+        login: 'Kovalchuk',
+        password: '99Adidas.Shewi12011979'
+    };
+    
+    // Утилиты
+    function showNotification(message, type = 'info') {
+        const notification = document.getElementById('global-notification');
+        const body = document.getElementById('notification-body');
+        
+        body.textContent = message;
+        notification.style.borderColor = type === 'success' ? 'var(--clr-green)' : 
+                                      type === 'error' ? 'var(--clr-red)' : 'var(--clr-blue)';
+        
+        notification.classList.add('show');
+        setTimeout(() => notification.classList.remove('show'), 5000);
+    }
+    
+    // Простое шифрование для localStorage
+    function encrypt(data) {
+        try {
+            return btoa(encodeURIComponent(JSON.stringify(data)));
+        } catch {
+            return btoa(JSON.stringify(data));
+        }
+    }
+    
+    function decrypt(encrypted) {
+        try {
+            return JSON.parse(decodeURIComponent(atob(encrypted)));
+        } catch {
             try {
-                const text = atob(encrypted);
-                let result = '';
-                for (let i = 0; i < text.length; i++) {
-                    result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-                }
-                return result;
-            } catch {
-                return '';
-            }
-        }
-
-        // Хэширование пароля (упрощенное)
-        async function hashPassword(password) {
-            // Используем упрощенный хэш для демонстрации
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password + 'anticrist_salt');
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        // Уведомления
-        function showNotification(message, type = 'info') {
-            const notification = document.getElementById('global-notification');
-            const body = document.getElementById('notification-body');
-            
-            body.textContent = message;
-            
-            if (type === 'success') {
-                notification.style.borderColor = 'var(--neon-green)';
-                document.querySelector('.notification-title').style.color = 'var(--neon-green)';
-            } else if (type === 'error') {
-                notification.style.borderColor = 'var(--neon-red)';
-                document.querySelector('.notification-title').style.color = 'var(--neon-red)';
-            } else {
-                notification.style.borderColor = 'var(--neon-blue)';
-                document.querySelector('.notification-title').style.color = 'var(--neon-blue)';
-            }
-            
-            notification.classList.add('show');
-            
-            // Автоматическое скрытие через 5 секунд
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 5000);
-        }
-
-        // Звуковое уведомление
-        function playNotificationSound() {
-            const audio = document.getElementById('notification-sound');
-            audio.currentTime = 0;
-            audio.play().catch(e => console.log("Автовоспроизведение звука заблокировано"));
-        }
-
-        // Браузерное уведомление
-        function showBrowserNotification(title, body) {
-            if (!("Notification" in window)) return;
-            
-            if (Notification.permission === "granted") {
-                new Notification(title, { body });
-            } else if (Notification.permission !== "denied") {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") {
-                        new Notification(title, { body });
-                    }
-                });
-            }
-        }
-
-        // Форматирование даты
-        function formatDate(date) {
-            return new Date(date).toLocaleString('ru-RU', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        // ==================== УПРАВЛЕНИЕ ДАННЫМИ ====================
-
-        // Инициализация данных
-        function initData() {
-            // Инициализация пользователей
-            if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
-                const defaultUsers = [
-                    {
-                        id: 'admin',
-                        login: ADMIN_CREDENTIALS.login,
-                        password: ADMIN_CREDENTIALS.password, // В реальном приложении здесь должен быть хэш
-                        username: 'Администратор',
-                        isAdmin: true,
-                        registered: new Date().toISOString()
-                    }
-                ];
-                localStorage.setItem(STORAGE_KEYS.USERS, xorEncrypt(JSON.stringify(defaultUsers)));
-            }
-
-            // Инициализация зараженных ПК
-            if (!localStorage.getItem(STORAGE_KEYS.INFECTED_PCS)) {
-                const defaultPCs = [
-                    { id: '1', name: 'DESKTOP-ALPHA01', geo: 'US', income: 150 },
-                    { id: '2', name: 'WORKSTATION-BETA', geo: 'DE', income: 230 },
-                    { id: '3', name: 'LAPTOP-GAMMA22', geo: 'RU', income: 95 },
-                    { id: '4', name: 'SERVER-DELTA', geo: 'FR', income: 420 },
-                    { id: '5', name: 'PC-EPSILON', geo: 'UK', income: 180 }
-                ];
-                localStorage.setItem(STORAGE_KEYS.INFECTED_PCS, xorEncrypt(JSON.stringify(defaultPCs)));
-            }
-
-            // Инициализация других данных
-            if (!localStorage.getItem(STORAGE_KEYS.WITHDRAWALS)) {
-                localStorage.setItem(STORAGE_KEYS.WITHDRAWALS, xorEncrypt(JSON.stringify([])));
-            }
-            if (!localStorage.getItem(STORAGE_KEYS.BUILD_REQUESTS)) {
-                localStorage.setItem(STORAGE_KEYS.BUILD_REQUESTS, xorEncrypt(JSON.stringify([])));
-            }
-            if (!localStorage.getItem(STORAGE_KEYS.BUILDS)) {
-                localStorage.setItem(STORAGE_KEYS.BUILDS, xorEncrypt(JSON.stringify([])));
-            }
-        }
-
-        // Получение данных
-        function getData(key) {
-            try {
-                const encrypted = localStorage.getItem(key);
-                if (!encrypted) return null;
-                const decrypted = xorDecrypt(encrypted);
-                return JSON.parse(decrypted);
+                return JSON.parse(atob(encrypted));
             } catch {
                 return null;
             }
         }
-
-        // Сохранение данных
-        function saveData(key, data) {
-            localStorage.setItem(key, xorEncrypt(JSON.stringify(data)));
-        }
-
-        // ==================== АУТЕНТИФИКАЦИЯ ====================
-
-        // Регистрация
-        async function registerUser(login, password, username) {
-            const users = getData(STORAGE_KEYS.USERS) || [];
-            
-            // Проверка существования пользователя
-            if (users.find(u => u.login === login)) {
-                return { success: false, message: 'Пользователь с таким логином уже существует' };
-            }
-            
-            // Хэширование пароля
-            const hashedPassword = await hashPassword(password);
-            
-            // Создание нового пользователя
-            const newUser = {
-                id: 'user_' + Date.now(),
-                login: login,
-                password: hashedPassword,
-                username: username || login,
-                isAdmin: false,
-                registered: new Date().toISOString()
-            };
-            
-            users.push(newUser);
-            saveData(STORAGE_KEYS.USERS, users);
-            
-            return { success: true, user: newUser };
-        }
-
-        // Вход
-        async function loginUser(login, password) {
-            const users = getData(STORAGE_KEYS.USERS) || [];
-            
-            // Проверка админских учетных данных
-            if (login === ADMIN_CREDENTIALS.login && password === ADMIN_CREDENTIALS.password) {
-                let adminUser = users.find(u => u.login === ADMIN_CREDENTIALS.login);
-                
-                if (!adminUser) {
-                    // Создаем админский аккаунт если его нет
-                    adminUser = {
-                        id: 'admin',
-                        login: ADMIN_CREDENTIALS.login,
-                        username: 'Администратор',
-                        isAdmin: true
-                    };
-                    users.push(adminUser);
-                    saveData(STORAGE_KEYS.USERS, users);
+    }
+    
+    // Хэширование пароля (упрощенное)
+    async function hashPassword(password) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password + 'anticrist_salt_2024');
+        const hash = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(hash))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+    }
+    
+    // Инициализация данных
+    function initData() {
+        if (!localStorage.getItem(STORAGE.USERS)) {
+            localStorage.setItem(STORAGE.USERS, encrypt([
+                {
+                    id: 'admin_001',
+                    login: ADMIN.login,
+                    password: ADMIN.password, // В реальном приложении должен быть хэш
+                    username: 'Администратор',
+                    isAdmin: true,
+                    created: new Date().toISOString()
                 }
-                
-                return { success: true, user: adminUser };
+            ]));
+        }
+        
+        if (!localStorage.getItem(STORAGE.PCS)) {
+            localStorage.setItem(STORAGE.PCS, encrypt([
+                { id: '1', name: 'PC-ALPHA01', geo: 'US', income: 150 },
+                { id: '2', name: 'WS-BETA22', geo: 'DE', income: 230 },
+                { id: '3', name: 'LT-GAMMA33', geo: 'RU', income: 95 }
+            ]));
+        }
+        
+        if (!localStorage.getItem(STORAGE.WITHDRAWALS)) {
+            localStorage.setItem(STORAGE.WITHDRAWALS, encrypt([]));
+        }
+        
+        if (!localStorage.getItem(STORAGE.BUILD_REQUESTS)) {
+            localStorage.setItem(STORAGE.BUILD_REQUESTS, encrypt([]));
+        }
+        
+        if (!localStorage.getItem(STORAGE.BUILDS)) {
+            localStorage.setItem(STORAGE.BUILDS, encrypt([]));
+        }
+    }
+    
+    // Работа с данными
+    function getData(key) {
+        const data = localStorage.getItem(key);
+        return data ? decrypt(data) : null;
+    }
+    
+    function saveData(key, data) {
+        localStorage.setItem(key, encrypt(data));
+    }
+    
+    // Аутентификация
+    async function registerUser(login, password) {
+        const users = getData(STORAGE.USERS) || [];
+        
+        if (users.find(u => u.login === login)) {
+            return { success: false, message: 'Логин уже занят' };
+        }
+        
+        const hashedPassword = await hashPassword(password);
+        const newUser = {
+            id: 'user_' + Date.now(),
+            login,
+            password: hashedPassword,
+            username: login,
+            isAdmin: false,
+            created: new Date().toISOString()
+        };
+        
+        users.push(newUser);
+        saveData(STORAGE.USERS, users);
+        
+        return { success: true, user: newUser };
+    }
+    
+    async function loginUser(login, password) {
+        // Проверка админских учетных данных
+        if (login === ADMIN.login && password === ADMIN.password) {
+            const users = getData(STORAGE.USERS) || [];
+            let adminUser = users.find(u => u.login === ADMIN.login);
+            
+            if (!adminUser) {
+                adminUser = {
+                    id: 'admin_001',
+                    login: ADMIN.login,
+                    username: 'Администратор',
+                    isAdmin: true
+                };
+                users.push(adminUser);
+                saveData(STORAGE.USERS, users);
             }
             
-            // Поиск пользователя
-            const user = users.find(u => u.login === login);
-            if (!user) {
-                return { success: false, message: 'Пользователь не найден' };
-            }
-            
-            // Проверка пароля
-            const hashedPassword = await hashPassword(password);
-            if (user.password !== hashedPassword) {
-                return { success: false, message: 'Неверный пароль' };
-            }
-            
-            return { success: true, user };
+            return { success: true, user: adminUser };
         }
-
-        // Сохранение сессии
-        function saveSession(user) {
-            currentUser = user;
-            isAdmin = user.isAdmin || false;
-            
-            const session = {
-                userId: user.id,
-                login: user.login,
-                username: user.username,
-                isAdmin: isAdmin,
-                loginTime: new Date().toISOString()
-            };
-            
-            localStorage.setItem(STORAGE_KEYS.SESSION, xorEncrypt(JSON.stringify(session)));
-            
-            // Обновление интерфейса
-            document.getElementById('sidebar-username').textContent = user.username;
-            document.getElementById('sidebar-login').textContent = user.login;
-            
-            if (isAdmin) {
-                document.getElementById('admin-badge').style.display = 'block';
-                document.getElementById('admin-nav').style.display = 'block';
-            }
+        
+        // Поиск обычного пользователя
+        const users = getData(STORAGE.USERS) || [];
+        const user = users.find(u => u.login === login);
+        
+        if (!user) {
+            return { success: false, message: 'Пользователь не найден' };
         }
-
-        // Проверка сессии
-        function checkSession() {
-            try {
-                const encrypted = localStorage.getItem(STORAGE_KEYS.SESSION);
-                if (!encrypted) return false;
-                
-                const decrypted = xorDecrypt(encrypted);
-                const session = JSON.parse(decrypted);
-                
-                // Проверяем, существует ли пользователь
-                const users = getData(STORAGE_KEYS.USERS) || [];
-                const user = users.find(u => u.id === session.userId);
-                
-                if (user) {
-                    saveSession(user);
-                    return true;
-                }
-            } catch {
-                // Ошибка при расшифровке
-            }
-            
-            return false;
+        
+        // Проверка пароля
+        const hashedPassword = await hashPassword(password);
+        if (user.password !== hashedPassword) {
+            return { success: false, message: 'Неверный пароль' };
         }
-
-        // Выход
-        function logout() {
-            currentUser = null;
-            isAdmin = false;
-            localStorage.removeItem(STORAGE_KEYS.SESSION);
-            showAuthScreen();
+        
+        return { success: true, user };
+    }
+    
+    function saveSession(user) {
+        currentUser = user;
+        isAdmin = user.isAdmin === true;
+        
+        const session = {
+            userId: user.id,
+            login: user.login,
+            username: user.username,
+            isAdmin: isAdmin,
+            loginTime: new Date().toISOString()
+        };
+        
+        localStorage.setItem(STORAGE.SESSION, encrypt(session));
+        
+        // Обновление UI
+        document.getElementById('sidebar-username').textContent = user.username;
+        document.getElementById('sidebar-login').textContent = user.login;
+        
+        if (isAdmin) {
+            document.getElementById('admin-badge').style.display = 'block';
+            document.getElementById('admin-nav').style.display = 'block';
         }
-
-        // ==================== УПРАВЛЕНИЕ ИНТЕРФЕЙСОМ ====================
-
-        // Показать экран авторизации
-        function showAuthScreen() {
-            document.getElementById('auth-screen').style.display = 'flex';
-            document.getElementById('main-interface').style.display = 'none';
-            document.getElementById('login-card').style.display = 'block';
-            document.getElementById('register-card').style.display = 'none';
-            
-            // Очистка полей
-            document.getElementById('login-username').value = '';
-            document.getElementById('login-password').value = '';
-            document.getElementById('register-username').value = '';
-            document.getElementById('register-password').value = '';
-            document.getElementById('register-confirm').value = '';
+    }
+    
+    function checkSession() {
+        const sessionData = getData(STORAGE.SESSION);
+        if (!sessionData) return false;
+        
+        const users = getData(STORAGE.USERS) || [];
+        const user = users.find(u => u.id === sessionData.userId);
+        
+        if (user) {
+            saveSession(user);
+            return true;
         }
-
-        // Показать основной интерфейс
-        function showMainInterface() {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-interface').style.display = 'block';
-            
-            // Закрываем сайдбар на мобильных устройствах
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('active');
-            }
-            
-            // Загружаем данные для текущей страницы
-            loadPageData();
-        }
-
-        // Загрузка данных для страницы
-        function loadPageData() {
-            const hash = window.location.hash;
-            
-            // Скрываем все страницы
-            document.querySelectorAll('.page-content').forEach(page => {
-                page.style.display = 'none';
-            });
-            
-            // Сбрасываем активные пункты меню
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Отображаем соответствующую страницу
-            if (hash === '#/infected' || hash === '#/' || hash === '') {
+        
+        return false;
+    }
+    
+    function logout() {
+        localStorage.removeItem(STORAGE.SESSION);
+        currentUser = null;
+        isAdmin = false;
+        showAuthScreen();
+    }
+    
+    // UI функции
+    function showAuthScreen() {
+        document.getElementById('auth-screen').style.display = 'flex';
+        document.getElementById('main-interface').style.display = 'none';
+        document.getElementById('login-card').style.display = 'block';
+        document.getElementById('register-card').style.display = 'none';
+        
+        // Очистка полей
+        document.getElementById('login-username').value = '';
+        document.getElementById('login-password').value = '';
+        document.getElementById('register-username').value = '';
+        document.getElementById('register-password').value = '';
+        document.getElementById('register-confirm').value = '';
+    }
+    
+    function showMainInterface() {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('main-interface').style.display = 'block';
+        loadPageData();
+    }
+    
+    function loadPageData() {
+        const hash = window.location.hash || '#/infected';
+        
+        // Скрыть все страницы
+        document.querySelectorAll('.page-content').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // Снять активность с меню
+        document.querySelectorAll('.nav-item').forEach(el => {
+            el.classList.remove('active');
+        });
+        
+        // Показать нужную страницу
+        switch(hash) {
+            case '#/infected':
                 document.getElementById('page-infected').style.display = 'block';
                 document.getElementById('nav-infected').classList.add('active');
                 loadInfectedPCs();
-            } else if (hash === '#/withdraw') {
+                break;
+                
+            case '#/withdraw':
                 document.getElementById('page-withdraw').style.display = 'block';
                 document.getElementById('nav-withdraw').classList.add('active');
-            } else if (hash === '#/get-build') {
+                break;
+                
+            case '#/get-build':
                 document.getElementById('page-get-build').style.display = 'block';
                 document.getElementById('nav-get-build').classList.add('active');
-            } else if (hash === '#/my-builds') {
+                break;
+                
+            case '#/my-builds':
                 document.getElementById('page-my-builds').style.display = 'block';
                 document.getElementById('nav-my-builds').classList.add('active');
                 loadMyBuilds();
-            } else if (hash === '#/admin-infected') {
+                break;
+                
+            case '#/admin-infected':
                 if (!isAdmin) {
                     window.location.hash = '#/infected';
                     return;
                 }
                 document.getElementById('page-admin-infected').style.display = 'block';
                 document.getElementById('nav-admin-infected').classList.add('active');
-                loadAdminInfectedPCs();
-            } else if (hash === '#/admin-withdraw') {
+                loadAdminPCs();
+                break;
+                
+            case '#/admin-withdraw':
                 if (!isAdmin) {
                     window.location.hash = '#/infected';
                     return;
@@ -1507,7 +1217,9 @@
                 document.getElementById('page-admin-withdraw').style.display = 'block';
                 document.getElementById('nav-admin-withdraw').classList.add('active');
                 loadAdminWithdrawals();
-            } else if (hash === '#/admin-build-requests') {
+                break;
+                
+            case '#/admin-build-requests':
                 if (!isAdmin) {
                     window.location.hash = '#/infected';
                     return;
@@ -1515,625 +1227,390 @@
                 document.getElementById('page-admin-build-requests').style.display = 'block';
                 document.getElementById('nav-admin-build-requests').classList.add('active');
                 loadAdminBuildRequests();
-            } else {
-                // По умолчанию показываем зараженных
+                break;
+                
+            default:
                 window.location.hash = '#/infected';
-            }
         }
-
-        // ==================== ФУНКЦИИ ДЛЯ ПОЛЬЗОВАТЕЛЯ ====================
-
-        // Загрузка зараженных ПК
-        function loadInfectedPCs() {
-            const pcs = getData(STORAGE_KEYS.INFECTED_PCS) || [];
-            const tbody = document.getElementById('infected-table-body');
-            
-            tbody.innerHTML = '';
-            
-            pcs.forEach(pc => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${pc.name}</td>
-                    <td>${pc.geo}</td>
-                    <td>$${pc.income}</td>
-                `;
-                tbody.appendChild(row);
+    }
+    
+    // Загрузка данных для страниц
+    function loadInfectedPCs() {
+        const pcs = getData(STORAGE.PCS) || [];
+        const tbody = document.getElementById('infected-table-body');
+        
+        tbody.innerHTML = pcs.map(pc => `
+            <tr>
+                <td>${pc.name}</td>
+                <td>${pc.geo}</td>
+                <td>$${pc.income}</td>
+            </tr>
+        `).join('');
+    }
+    
+    function loadMyBuilds() {
+        const builds = getData(STORAGE.BUILDS) || [];
+        const userBuilds = builds.filter(b => b.userId === currentUser.id);
+        const tbody = document.getElementById('my-builds-table-body');
+        
+        tbody.innerHTML = userBuilds.map(build => `
+            <tr>
+                <td>${new Date(build.date).toLocaleString()}</td>
+                <td><a href="${build.link}" target="_blank">${build.link.substring(0, 40)}...</a></td>
+                <td>
+                    <button class="action-btn copy-btn" data-link="${build.link}">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+        
+        // Обработчики для кнопок копирования
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const link = this.getAttribute('data-link');
+                navigator.clipboard.writeText(link);
+                showNotification('Ссылка скопирована', 'success');
             });
-            
-            if (pcs.length === 0) {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="3" style="text-align: center; color: var(--text-secondary);">Нет данных</td>`;
-                tbody.appendChild(row);
-            }
-        }
-
-        // Загрузка моих билдов
-        function loadMyBuilds() {
-            const allBuilds = getData(STORAGE_KEYS.BUILDS) || [];
-            const userBuilds = allBuilds.filter(b => b.userId === currentUser.id);
-            const tbody = document.getElementById('my-builds-table-body');
-            
-            tbody.innerHTML = '';
-            
-            userBuilds.forEach(build => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${formatDate(build.date)}</td>
-                    <td><a href="${build.link}" target="_blank" style="color: var(--neon-cyan);">${build.link.substring(0, 40)}...</a></td>
-                    <td>
-                        <button class="action-btn copy-build-btn" data-link="${build.link}" title="Копировать ссылку">
-                            <i class="fas fa-copy"></i>
+        });
+    }
+    
+    function loadAdminPCs() {
+        const pcs = getData(STORAGE.PCS) || [];
+        const tbody = document.getElementById('admin-infected-table-body');
+        
+        tbody.innerHTML = pcs.map(pc => `
+            <tr>
+                <td>${pc.name}</td>
+                <td>${pc.geo}</td>
+                <td>$${pc.income}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn edit-btn" data-id="${pc.id}">
+                            <i class="fas fa-edit"></i>
                         </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
+                        <button class="action-btn delete-btn" data-id="${pc.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+        
+        // Добавление обработчиков
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const pcs = getData(STORAGE.PCS);
+                const pc = pcs.find(p => p.id === id);
+                
+                if (pc) {
+                    document.getElementById('admin-pc-name').value = pc.name;
+                    document.getElementById('admin-pc-geo').value = pc.geo;
+                    document.getElementById('admin-pc-income').value = pc.income;
+                    
+                    document.getElementById('admin-add-pc').style.display = 'none';
+                    document.getElementById('admin-update-pc').style.display = 'inline-block';
+                    document.getElementById('admin-cancel-edit').style.display = 'inline-block';
+                    
+                    document.getElementById('admin-update-pc').dataset.editId = id;
+                }
             });
+        });
+        
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                if (confirm('Удалить эту запись?')) {
+                    const pcs = getData(STORAGE.PCS);
+                    const filtered = pcs.filter(p => p.id !== id);
+                    saveData(STORAGE.PCS, filtered);
+                    loadAdminPCs();
+                    showNotification('Запись удалена', 'success');
+                }
+            });
+        });
+    }
+    
+    function loadAdminWithdrawals() {
+        const withdrawals = getData(STORAGE.WITHDRAWALS) || [];
+        const tbody = document.getElementById('admin-withdraw-table-body');
+        
+        tbody.innerHTML = withdrawals.map(wd => `
+            <tr>
+                <td>${wd.userLogin}</td>
+                <td>$${wd.amount}</td>
+                <td style="font-size:0.9em">${wd.address.substring(0, 20)}...</td>
+                <td>${new Date(wd.date).toLocaleString()}</td>
+                <td>
+                    <span class="status-badge status-${wd.status}">
+                        ${wd.status === 'pending' ? 'В ожидании' : 
+                          wd.status === 'completed' ? 'Выполнено' : 'Отказано'}
+                    </span>
+                </td>
+                <td>
+                    <button class="action-btn status-btn" data-id="${wd.id}">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+        
+        // Обработчики для изменения статуса
+        document.querySelectorAll('.status-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                document.getElementById('withdraw-status-modal').classList.add('active');
+                document.getElementById('status-modal-confirm').dataset.withdrawId = id;
+            });
+        });
+    }
+    
+    function loadAdminBuildRequests() {
+        const requests = getData(STORAGE.BUILD_REQUESTS) || [];
+        const tbody = document.getElementById('admin-build-requests-table-body');
+        
+        tbody.innerHTML = requests.map(req => `
+            <tr>
+                <td>${req.userLogin}</td>
+                <td>${new Date(req.date).toLocaleString()}</td>
+                <td>
+                    <span class="status-badge status-${req.status}">
+                        ${req.status === 'pending' ? 'В ожидании' : 'Выполнено'}
+                    </span>
+                </td>
+                <td>
+                    ${req.status === 'pending' ? `
+                    <button class="action-btn issue-btn" data-id="${req.id}">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                    ` : ''}
+                </td>
+            </tr>
+        `).join('');
+        
+        // Обработчики для выдачи билда
+        document.querySelectorAll('.issue-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                document.getElementById('issue-build-modal').classList.add('active');
+                document.getElementById('issue-modal-confirm').dataset.requestId = id;
+            });
+        });
+    }
+    
+    // Инициализация приложения
+    function initApp() {
+        initData();
+        
+        if (checkSession()) {
+            showMainInterface();
+        } else {
+            showAuthScreen();
+        }
+        
+        // Маршрутизация
+        window.addEventListener('hashchange', loadPageData);
+        
+        // Инициализация UI обработчиков
+        initUI();
+    }
+    
+    function initUI() {
+        // Переключение между логином и регистрацией
+        document.getElementById('switch-to-register').addEventListener('click', () => {
+            document.getElementById('login-card').style.display = 'none';
+            document.getElementById('register-card').style.display = 'block';
+        });
+        
+        document.getElementById('switch-to-login').addEventListener('click', () => {
+            document.getElementById('register-card').style.display = 'none';
+            document.getElementById('login-card').style.display = 'block';
+        });
+        
+        // Вход
+        document.getElementById('login-btn').addEventListener('click', async () => {
+            const login = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
             
-            if (userBuilds.length === 0) {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="3" style="text-align: center; color: var(--text-secondary);">У вас еще нет билдов</td>`;
-                tbody.appendChild(row);
+            if (!login || !password) {
+                showNotification('Заполните все поля', 'error');
+                return;
             }
             
-            // Добавляем обработчики для кнопок копирования
-            document.querySelectorAll('.copy-build-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const link = this.getAttribute('data-link');
-                    navigator.clipboard.writeText(link).then(() => {
-                        showNotification('Ссылка скопирована в буфер обмена', 'success');
-                    });
-                });
-            });
-        }
-
-        // Создание заявки на вывод
-        function createWithdrawal(amount, address) {
-            const withdrawals = getData(STORAGE_KEYS.WITHDRAWALS) || [];
+            const result = await loginUser(login, password);
+            if (result.success) {
+                saveSession(result.user);
+                showMainInterface();
+                showNotification('Вход выполнен', 'success');
+            } else {
+                showNotification(result.message, 'error');
+            }
+        });
+        
+        // Регистрация
+        document.getElementById('register-btn').addEventListener('click', async () => {
+            const login = document.getElementById('register-username').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
             
-            const newWithdrawal = {
+            if (!login || !password || !confirm) {
+                showNotification('Заполните все поля', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showNotification('Пароль должен быть не менее 6 символов', 'error');
+                return;
+            }
+            
+            if (password !== confirm) {
+                showNotification('Пароли не совпадают', 'error');
+                return;
+            }
+            
+            const result = await registerUser(login, password);
+            if (result.success) {
+                saveSession(result.user);
+                showMainInterface();
+                showNotification('Регистрация успешна', 'success');
+            } else {
+                showNotification(result.message, 'error');
+            }
+        });
+        
+        // Меню
+        document.getElementById('menu-toggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.add('active');
+        });
+        
+        document.getElementById('close-sidebar').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.remove('active');
+        });
+        
+        // Выход
+        document.getElementById('logout-btn').addEventListener('click', logout);
+        
+        // Вывод средств
+        document.getElementById('withdraw-confirm').addEventListener('change', function() {
+            document.getElementById('withdraw-submit').disabled = !this.checked;
+        });
+        
+        document.getElementById('withdraw-submit').addEventListener('click', () => {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            const address = document.getElementById('withdraw-address').value.trim();
+            
+            if (!amount || amount < 50) {
+                showNotification('Минимальная сумма: 50$', 'error');
+                return;
+            }
+            
+            if (!address || address.length < 10) {
+                showNotification('Введите корректный BTC адрес', 'error');
+                return;
+            }
+            
+            const withdrawals = getData(STORAGE.WITHDRAWALS) || [];
+            withdrawals.push({
                 id: 'wd_' + Date.now(),
                 userId: currentUser.id,
                 userLogin: currentUser.login,
-                amount: parseFloat(amount),
+                amount,
                 address,
                 date: new Date().toISOString(),
                 status: 'pending'
-            };
+            });
             
-            withdrawals.push(newWithdrawal);
-            saveData(STORAGE_KEYS.WITHDRAWALS, withdrawals);
+            saveData(STORAGE.WITHDRAWALS, withdrawals);
             
-            showNotification(`Заявка на вывод $${amount} создана`, 'success');
-            
-            // Очистка формы
             document.getElementById('withdraw-amount').value = '';
             document.getElementById('withdraw-address').value = '';
             document.getElementById('withdraw-confirm').checked = false;
             document.getElementById('withdraw-submit').disabled = true;
-        }
-
-        // Создание заявки на билд
-        function createBuildRequest() {
-            const requests = getData(STORAGE_KEYS.BUILD_REQUESTS) || [];
             
-            const newRequest = {
+            showNotification('Заявка отправлена', 'success');
+        });
+        
+        // Запрос билда
+        document.getElementById('request-build-btn').addEventListener('click', () => {
+            document.getElementById('build-confirm-modal').classList.add('active');
+        });
+        
+        document.getElementById('build-modal-confirm').addEventListener('click', () => {
+            const requests = getData(STORAGE.BUILD_REQUESTS) || [];
+            requests.push({
                 id: 'br_' + Date.now(),
                 userId: currentUser.id,
                 userLogin: currentUser.login,
                 date: new Date().toISOString(),
                 status: 'pending'
-            };
-            
-            requests.push(newRequest);
-            saveData(STORAGE_KEYS.BUILD_REQUESTS, requests);
-            
-            // Отправка уведомления в Telegram (заглушка)
-            sendTelegramNotification(`Новая заявка на билд от ${currentUser.login}`);
-            
-            showNotification('Заявка на билд отправлена администратору', 'success');
-        }
-
-        // Отправка уведомления в Telegram
-        function sendTelegramNotification(message) {
-            // В реальном приложении здесь должен быть ваш токен и chat_id
-            const token = 'YOUR_BOT_TOKEN';
-            const chatId = 'YOUR_CHAT_ID';
-            const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
-            
-            // Используем заглушку для демонстрации
-            console.log('Telegram notification:', message);
-            // fetch(url).catch(err => console.error('Telegram error:', err));
-        }
-
-        // ==================== ФУНКЦИИ ДЛЯ АДМИНА ====================
-
-        // Загрузка зараженных ПК для админа
-        function loadAdminInfectedPCs() {
-            const pcs = getData(STORAGE_KEYS.INFECTED_PCS) || [];
-            const tbody = document.getElementById('admin-infected-table-body');
-            
-            tbody.innerHTML = '';
-            
-            pcs.forEach(pc => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${pc.name}</td>
-                    <td>${pc.geo}</td>
-                    <td>$${pc.income}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="action-btn edit-pc-btn" data-id="${pc.id}">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="action-btn delete-pc-btn" data-id="${pc.id}">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
             });
             
-            if (pcs.length === 0) {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="4" style="text-align: center; color: var(--text-secondary);">Нет данных</td>`;
-                tbody.appendChild(row);
+            saveData(STORAGE.BUILD_REQUESTS, requests);
+            
+            // Отправка в Telegram (заглушка)
+            console.log('Отправка в Telegram: Новая заявка на билд от', currentUser.login);
+            
+            document.getElementById('build-confirm-modal').classList.remove('active');
+            showNotification('Заявка отправлена администратору', 'success');
+        });
+        
+        document.getElementById('build-modal-cancel').addEventListener('click', () => {
+            document.getElementById('build-confirm-modal').classList.remove('active');
+        });
+        
+        document.getElementById('build-modal-close').addEventListener('click', () => {
+            document.getElementById('build-confirm-modal').classList.remove('active');
+        });
+        
+        // Админ: управление ПК
+        document.getElementById('admin-add-pc').addEventListener('click', () => {
+            const name = document.getElementById('admin-pc-name').value.trim();
+            const geo = document.getElementById('admin-pc-geo').value.trim();
+            const income = document.getElementById('admin-pc-income').value;
+            
+            if (!name || !geo || !income) {
+                showNotification('Заполните все поля', 'error');
+                return;
             }
             
-            // Добавляем обработчики
-            document.querySelectorAll('.edit-pc-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    editPC(id);
-                });
+            const pcs = getData(STORAGE.PCS) || [];
+            pcs.push({
+                id: 'pc_' + Date.now(),
+                name,
+                geo,
+                income: parseInt(income)
             });
             
-            document.querySelectorAll('.delete-pc-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    deletePC(id);
-                });
-            });
-        }
-
-        // Редактирование ПК
-        function editPC(id) {
-            const pcs = getData(STORAGE_KEYS.INFECTED_PCS) || [];
-            const pc = pcs.find(p => p.id === id);
+            saveData(STORAGE.PCS, pcs);
+            loadAdminPCs();
             
-            if (!pc) return;
-            
-            editPCId = id;
-            document.getElementById('admin-pc-name').value = pc.name;
-            document.getElementById('admin-pc-geo').value = pc.geo;
-            document.getElementById('admin-pc-income').value = pc.income;
-            document.getElementById('admin-edit-id').value = id;
-            
-            document.getElementById('admin-add-pc').style.display = 'none';
-            document.getElementById('admin-update-pc').style.display = 'inline-block';
-            document.getElementById('admin-cancel-edit').style.display = 'inline-block';
-        }
-
-        // Удаление ПК
-        function deletePC(id) {
-            if (!confirm('Удалить эту запись?')) return;
-            
-            const pcs = getData(STORAGE_KEYS.INFECTED_PCS) || [];
-            const filteredPCs = pcs.filter(p => p.id !== id);
-            
-            saveData(STORAGE_KEYS.INFECTED_PCS, filteredPCs);
-            loadAdminInfectedPCs();
-            showNotification('Запись удалена', 'success');
-        }
-
-        // Добавление/обновление ПК
-        function savePC(name, geo, income) {
-            const pcs = getData(STORAGE_KEYS.INFECTED_PCS) || [];
-            
-            if (editPCId) {
-                // Обновление существующей записи
-                const index = pcs.findIndex(p => p.id === editPCId);
-                if (index !== -1) {
-                    pcs[index] = {
-                        ...pcs[index],
-                        name,
-                        geo,
-                        income: parseFloat(income)
-                    };
-                }
-                editPCId = null;
-            } else {
-                // Добавление новой записи
-                const newPC = {
-                    id: 'pc_' + Date.now(),
-                    name,
-                    geo,
-                    income: parseFloat(income)
-                };
-                pcs.push(newPC);
-            }
-            
-            saveData(STORAGE_KEYS.INFECTED_PCS, pcs);
-            loadAdminInfectedPCs();
-            
-            // Сброс формы
             document.getElementById('admin-pc-name').value = '';
             document.getElementById('admin-pc-geo').value = '';
             document.getElementById('admin-pc-income').value = '';
             
-            document.getElementById('admin-add-pc').style.display = 'inline-block';
-            document.getElementById('admin-update-pc').style.display = 'none';
-            document.getElementById('admin-cancel-edit').style.display = 'none';
+            showNotification('ПК добавлен', 'success');
+        });
+        
+        document.getElementById('admin-update-pc').addEventListener('click', function() {
+            const id = this.dataset.editId;
+            const name = document.getElementById('admin-pc-name').value.trim();
+            const geo = document.getElementById('admin-pc-geo').value.trim();
+            const income = document.getElementById('admin-pc-income').value;
             
-            showNotification(editPCId ? 'Запись обновлена' : 'Запись добавлена', 'success');
-        }
-
-        // Загрузка заявок на вывод для админа
-        function loadAdminWithdrawals() {
-            const withdrawals = getData(STORAGE_KEYS.WITHDRAWALS) || [];
-            const tbody = document.getElementById('admin-withdraw-table-body');
-            
-            tbody.innerHTML = '';
-            
-            withdrawals.forEach(wd => {
-                let statusBadge;
-                if (wd.status === 'pending') {
-                    statusBadge = '<span class="status-badge status-pending">В ожидании</span>';
-                } else if (wd.status === 'completed') {
-                    statusBadge = '<span class="status-badge status-completed">Выполнено</span>';
-                } else {
-                    statusBadge = '<span class="status-badge status-rejected">Отказано</span>';
-                }
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${wd.userLogin}</td>
-                    <td>$${wd.amount}</td>
-                    <td style="font-family: monospace; font-size: 0.9rem;">${wd.address.substring(0, 20)}...</td>
-                    <td>${formatDate(wd.date)}</td>
-                    <td>${statusBadge}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="action-btn change-status-btn" data-id="${wd.id}">
-                                <i class="fas fa-exchange-alt"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-            
-            if (withdrawals.length === 0) {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="6" style="text-align: center; color: var(--text-secondary);">Нет заявок на вывод</td>`;
-                tbody.appendChild(row);
+            if (!name || !geo || !income) {
+                showNotification('Заполните все поля', 'error');
+                return;
             }
             
-            // Добавляем обработчики
-            document.querySelectorAll('.change-status-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    openStatusModal(id);
-                });
-            });
-        }
-
-        // Изменение статуса вывода
-        function updateWithdrawalStatus(id, status) {
-            const withdrawals = getData(STORAGE_KEYS.WITHDRAWALS) || [];
-            const index = withdrawals.findIndex(w => w.id === id);
+            const pcs = getData(STORAGE.PCS);
+            const index = pcs.findIndex(p => p.id === id);
             
-            if (index === -1) return;
-            
-            withdrawals[index].status = status;
-            saveData(STORAGE_KEYS.WITHDRAWALS, withdrawals);
-            loadAdminWithdrawals();
-            
-            showNotification(`Статус заявки изменен на "${status}"`, 'success');
-        }
-
-        // Загрузка заявок на билд для админа
-        function loadAdminBuildRequests() {
-            const requests = getData(STORAGE_KEYS.BUILD_REQUESTS) || [];
-            const tbody = document.getElementById('admin-build-requests-table-body');
-            
-            tbody.innerHTML = '';
-            
-            requests.forEach(req => {
-                let statusBadge;
-                if (req.status === 'pending') {
-                    statusBadge = '<span class="status-badge status-pending">В ожидании</span>';
-                } else if (req.status === 'completed') {
-                    statusBadge = '<span class="status-badge status-completed">Выполнено</span>';
-                } else {
-                    statusBadge = '<span class="status-badge status-rejected">Отказано</span>';
-                }
+            if (index !== -1) {
+                pcs[index] = { ...pcs[index], name, geo, income: parseInt(income) };
+                saveData(STORAGE.PCS, pcs);
+                loadAdminPCs();
                 
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${req.userLogin}</td>
-                    <td>${formatDate(req.date)}</td>
-                    <td>${statusBadge}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="action-btn issue-build-btn" data-id="${req.id}" ${req.status === 'completed' ? 'disabled' : ''}>
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-            
-            if (requests.length === 0) {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="4" style="text-align: center; color: var(--text-secondary);">Нет заявок на билд</td>`;
-                tbody.appendChild(row);
-            }
-            
-            // Добавляем обработчики
-            document.querySelectorAll('.issue-build-btn').forEach(btn => {
-                if (!btn.disabled) {
-                    btn.addEventListener('click', function() {
-                        const id = this.getAttribute('data-id');
-                        openIssueBuildModal(id);
-                    });
-                }
-            });
-        }
-
-        // Выдача билда пользователю
-        function issueBuild(requestId, link) {
-            const requests = getData(STORAGE_KEYS.BUILD_REQUESTS) || [];
-            const request = requests.find(r => r.id === requestId);
-            
-            if (!request) return;
-            
-            // Обновляем статус заявки
-            const requestIndex = requests.findIndex(r => r.id === requestId);
-            requests[requestIndex].status = 'completed';
-            saveData(STORAGE_KEYS.BUILD_REQUESTS, requests);
-            
-            // Сохраняем билд
-            const builds = getData(STORAGE_KEYS.BUILDS) || [];
-            const newBuild = {
-                id: 'build_' + Date.now(),
-                userId: request.userId,
-                userLogin: request.userLogin,
-                requestId,
-                link,
-                date: new Date().toISOString()
-            };
-            builds.push(newBuild);
-            saveData(STORAGE_KEYS.BUILDS, builds);
-            
-            // Отправляем уведомление пользователю
-            playNotificationSound();
-            showBrowserNotification('𝕬𝖓𝖙𝖎𝖈𝖍𝖗𝖎𝖘𝖙', 'Ваш билд готов! Проверьте вкладку "Мои билды".');
-            
-            showNotification('Билд выдан пользователю', 'success');
-            loadAdminBuildRequests();
-        }
-
-        // ==================== МОДАЛЬНЫЕ ОКНА ====================
-
-        // Открытие модального окна изменения статуса
-        function openStatusModal(id) {
-            editWithdrawId = id;
-            document.getElementById('withdraw-status-modal').classList.add('active');
-        }
-
-        // Открытие модального окна выдачи билда
-        function openIssueBuildModal(id) {
-            editBuildRequestId = id;
-            document.getElementById('build-link').value = '';
-            document.getElementById('issue-build-modal').classList.add('active');
-        }
-
-        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
-
-        // Инициализация приложения
-        function initApp() {
-            // Инициализация данных
-            initData();
-            
-            // Проверка сессии
-            if (checkSession()) {
-                showMainInterface();
-            } else {
-                showAuthScreen();
-            }
-            
-            // Настройка маршрутизации
-            window.addEventListener('hashchange', loadPageData);
-            
-            // Защита от контекстного меню
-            document.addEventListener('contextmenu', e => e.preventDefault());
-            
-            // Защита от сохранения страницы
-            document.addEventListener('keydown', e => {
-                if (e.ctrlKey && e.key === 's') {
-                    e.preventDefault();
-                    showNotification('Сохранение страницы запрещено', 'error');
-                }
-            });
-            
-            // Инициализация элементов интерфейса
-            initUI();
-        }
-
-        // Инициализация UI элементов
-        function initUI() {
-            // Переключение между логином и регистрацией
-            document.getElementById('switch-to-register').addEventListener('click', () => {
-                document.getElementById('login-card').style.display = 'none';
-                document.getElementById('register-card').style.display = 'block';
-                document.getElementById('auth-form-title').textContent = 'Регистрация';
-            });
-            
-            document.getElementById('switch-to-login').addEventListener('click', () => {
-                document.getElementById('register-card').style.display = 'none';
-                document.getElementById('login-card').style.display = 'block';
-                document.getElementById('auth-form-title').textContent = 'Вход в систему';
-            });
-            
-            // Кнопка входа - используем Enter
-            document.getElementById('login-btn').addEventListener('click', handleLogin);
-            
-            // Также обрабатываем Enter в поле пароля
-            document.getElementById('login-password').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleLogin();
-                }
-            });
-            
-            // Обработчик входа
-            async function handleLogin() {
-                const login = document.getElementById('login-username').value.trim();
-                const password = document.getElementById('login-password').value;
-                
-                if (!login || !password) {
-                    showNotification('Заполните все поля', 'error');
-                    return;
-                }
-                
-                const result = await loginUser(login, password);
-                if (result.success) {
-                    saveSession(result.user);
-                    showMainInterface();
-                    showNotification('Вход выполнен успешно', 'success');
-                } else {
-                    showNotification(result.message, 'error');
-                }
-            }
-            
-            // Кнопка регистрации
-            document.getElementById('register-btn').addEventListener('click', async () => {
-                const login = document.getElementById('register-username').value.trim();
-                const password = document.getElementById('register-password').value;
-                const confirm = document.getElementById('register-confirm').value;
-                
-                if (!login || !password || !confirm) {
-                    showNotification('Заполните все поля', 'error');
-                    return;
-                }
-                
-                if (password.length < 6) {
-                    showNotification('Пароль должен содержать минимум 6 символов', 'error');
-                    return;
-                }
-                
-                if (password !== confirm) {
-                    showNotification('Пароли не совпадают', 'error');
-                    return;
-                }
-                
-                const result = await registerUser(login, password);
-                if (result.success) {
-                    saveSession(result.user);
-                    showMainInterface();
-                    showNotification('Регистрация выполнена успешно', 'success');
-                } else {
-                    showNotification(result.message, 'error');
-                }
-            });
-            
-            // Боковое меню
-            document.getElementById('menu-toggle').addEventListener('click', () => {
-                document.getElementById('sidebar').classList.add('active');
-            });
-            
-            document.getElementById('close-sidebar').addEventListener('click', () => {
-                document.getElementById('sidebar').classList.remove('active');
-            });
-            
-            // Выход
-            document.getElementById('logout-btn').addEventListener('click', logout);
-            
-            // Закрытие уведомления
-            document.getElementById('notification-close').addEventListener('click', () => {
-                document.getElementById('global-notification').classList.remove('show');
-            });
-            
-            // Вывод средств
-            const withdrawConfirm = document.getElementById('withdraw-confirm');
-            const withdrawSubmit = document.getElementById('withdraw-submit');
-            
-            withdrawConfirm.addEventListener('change', () => {
-                withdrawSubmit.disabled = !withdrawConfirm.checked;
-            });
-            
-            withdrawSubmit.addEventListener('click', () => {
-                const amount = document.getElementById('withdraw-amount').value;
-                const address = document.getElementById('withdraw-address').value.trim();
-                
-                if (!amount || amount < 50) {
-                    showNotification('Минимальная сумма вывода: $50', 'error');
-                    return;
-                }
-                
-                if (!address) {
-                    showNotification('Введите BTC адрес', 'error');
-                    return;
-                }
-                
-                // Простая валидация BTC адреса
-                if (address.length < 26 || address.length > 35) {
-                    showNotification('Неверный формат BTC адреса', 'error');
-                    return;
-                }
-                
-                createWithdrawal(amount, address);
-            });
-            
-            // Запрос билда
-            document.getElementById('request-build-btn').addEventListener('click', () => {
-                document.getElementById('build-confirm-modal').classList.add('active');
-            });
-            
-            // Модальное окно подтверждения билда
-            document.getElementById('build-modal-cancel').addEventListener('click', () => {
-                document.getElementById('build-confirm-modal').classList.remove('active');
-            });
-            
-            document.getElementById('build-modal-close').addEventListener('click', () => {
-                document.getElementById('build-confirm-modal').classList.remove('active');
-            });
-            
-            document.getElementById('build-modal-confirm').addEventListener('click', () => {
-                document.getElementById('build-confirm-modal').classList.remove('active');
-                createBuildRequest();
-            });
-            
-            // Админ: добавление/редактирование ПК
-            document.getElementById('admin-add-pc').addEventListener('click', () => {
-                const name = document.getElementById('admin-pc-name').value.trim();
-                const geo = document.getElementById('admin-pc-geo').value.trim();
-                const income = document.getElementById('admin-pc-income').value;
-                
-                if (!name || !geo || !income) {
-                    showNotification('Заполните все поля', 'error');
-                    return;
-                }
-                
-                savePC(name, geo, income);
-            });
-            
-            document.getElementById('admin-update-pc').addEventListener('click', () => {
-                const name = document.getElementById('admin-pc-name').value.trim();
-                const geo = document.getElementById('admin-pc-geo').value.trim();
-                const income = document.getElementById('admin-pc-income').value;
-                
-                if (!name || !geo || !income) {
-                    showNotification('Заполните все поля', 'error');
-                    return;
-                }
-                
-                savePC(name, geo, income);
-            });
-            
-            document.getElementById('admin-cancel-edit').addEventListener('click', () => {
-                editPCId = null;
                 document.getElementById('admin-pc-name').value = '';
                 document.getElementById('admin-pc-geo').value = '';
                 document.getElementById('admin-pc-income').value = '';
@@ -2141,95 +1618,110 @@
                 document.getElementById('admin-add-pc').style.display = 'inline-block';
                 document.getElementById('admin-update-pc').style.display = 'none';
                 document.getElementById('admin-cancel-edit').style.display = 'none';
-            });
-            
-            // Модальное окно изменения статуса вывода
-            document.getElementById('status-modal-cancel').addEventListener('click', () => {
-                document.getElementById('withdraw-status-modal').classList.remove('active');
-            });
-            
-            document.getElementById('status-modal-close').addEventListener('click', () => {
-                document.getElementById('withdraw-status-modal').classList.remove('active');
-            });
-            
-            document.getElementById('status-modal-confirm').addEventListener('click', () => {
-                const status = document.getElementById('status-select').value;
-                updateWithdrawalStatus(editWithdrawId, status);
-                document.getElementById('withdraw-status-modal').classList.remove('active');
-            });
-            
-            // Модальное окно выдачи билда
-            document.getElementById('issue-modal-cancel').addEventListener('click', () => {
-                document.getElementById('issue-build-modal').classList.remove('active');
-            });
-            
-            document.getElementById('issue-modal-close').addEventListener('click', () => {
-                document.getElementById('issue-build-modal').classList.remove('active');
-            });
-            
-            document.getElementById('issue-modal-confirm').addEventListener('click', () => {
-                const link = document.getElementById('build-link').value.trim();
                 
-                if (!link) {
-                    showNotification('Введите ссылку на билд', 'error');
-                    return;
-                }
-                
-                issueBuild(editBuildRequestId, link);
-                document.getElementById('issue-build-modal').classList.remove('active');
-            });
-            
-            // Разрешение на уведомления
-            if ("Notification" in window && Notification.permission === "default") {
-                setTimeout(() => {
-                    Notification.requestPermission();
-                }, 2000);
+                showNotification('ПК обновлен', 'success');
             }
-            
-            // Тестовые кнопки для отладки
-            if (window.location.href.includes('localhost') || window.location.href.includes('127.0.0.1')) {
-                addDebugButtons();
-            }
-        }
+        });
         
-        // Добавление отладочных кнопок
-        function addDebugButtons() {
-            const debugDiv = document.createElement('div');
-            debugDiv.style.position = 'fixed';
-            debugDiv.style.bottom = '10px';
-            debugDiv.style.right = '10px';
-            debugDiv.style.zIndex = '10000';
+        document.getElementById('admin-cancel-edit').addEventListener('click', () => {
+            document.getElementById('admin-pc-name').value = '';
+            document.getElementById('admin-pc-geo').value = '';
+            document.getElementById('admin-pc-income').value = '';
             
-            debugDiv.innerHTML = `
-                <button id="debug-admin" style="background: red; color: white; border: none; padding: 5px; margin: 2px;">Admin</button>
-                <button id="debug-clear" style="background: orange; color: black; border: none; padding: 5px; margin: 2px;">Clear Storage</button>
-                <button id="debug-user" style="background: green; color: white; border: none; padding: 5px; margin: 2px;">Test User</button>
-            `;
+            document.getElementById('admin-add-pc').style.display = 'inline-block';
+            document.getElementById('admin-update-pc').style.display = 'none';
+            document.getElementById('admin-cancel-edit').style.display = 'none';
+        });
+        
+        // Модальное окно изменения статуса вывода
+        document.getElementById('status-modal-confirm').addEventListener('click', function() {
+            const id = this.dataset.withdrawId;
+            const status = document.getElementById('status-select').value;
             
-            document.body.appendChild(debugDiv);
+            const withdrawals = getData(STORAGE.WITHDRAWALS);
+            const index = withdrawals.findIndex(w => w.id === id);
             
-            document.getElementById('debug-admin').addEventListener('click', () => {
-                document.getElementById('login-username').value = 'Kovalchuk';
-                document.getElementById('login-password').value = '99Adidas.Shewi12011979';
-                showNotification('Админские данные заполнены', 'info');
-            });
+            if (index !== -1) {
+                withdrawals[index].status = status;
+                saveData(STORAGE.WITHDRAWALS, withdrawals);
+                loadAdminWithdrawals();
+                showNotification('Статус обновлен', 'success');
+            }
             
-            document.getElementById('debug-user').addEventListener('click', () => {
-                document.getElementById('login-username').value = 'testuser';
-                document.getElementById('login-password').value = 'test123';
-                showNotification('Тестовые данные заполнены', 'info');
-            });
+            document.getElementById('withdraw-status-modal').classList.remove('active');
+        });
+        
+        document.getElementById('status-modal-cancel').addEventListener('click', () => {
+            document.getElementById('withdraw-status-modal').classList.remove('active');
+        });
+        
+        document.getElementById('status-modal-close').addEventListener('click', () => {
+            document.getElementById('withdraw-status-modal').classList.remove('active');
+        });
+        
+        // Модальное окно выдачи билда
+        document.getElementById('issue-modal-confirm').addEventListener('click', function() {
+            const id = this.dataset.requestId;
+            const link = document.getElementById('build-link').value.trim();
             
-            document.getElementById('debug-clear').addEventListener('click', () => {
-                if (confirm('Очистить все данные?')) {
-                    localStorage.clear();
-                    location.reload();
+            if (!link) {
+                showNotification('Введите ссылку', 'error');
+                return;
+            }
+            
+            // Обновление статуса заявки
+            const requests = getData(STORAGE.BUILD_REQUESTS);
+            const requestIndex = requests.findIndex(r => r.id === id);
+            
+            if (requestIndex !== -1) {
+                requests[requestIndex].status = 'completed';
+                saveData(STORAGE.BUILD_REQUESTS, requests);
+                
+                // Сохранение билда
+                const builds = getData(STORAGE.BUILDS) || [];
+                builds.push({
+                    id: 'build_' + Date.now(),
+                    userId: requests[requestIndex].userId,
+                    userLogin: requests[requestIndex].userLogin,
+                    requestId: id,
+                    link,
+                    date: new Date().toISOString()
+                });
+                
+                saveData(STORAGE.BUILDS, builds);
+                
+                // Уведомление
+                document.getElementById('notification-sound').play();
+                if (Notification.permission === 'granted') {
+                    new Notification('𝕬𝖓𝖙𝖎𝖈𝖍𝖗𝖎𝖘𝖙', {
+                        body: 'Ваш билд готов!'
+                    });
                 }
-            });
+                
+                document.getElementById('build-link').value = '';
+                document.getElementById('issue-build-modal').classList.remove('active');
+                loadAdminBuildRequests();
+                showNotification('Билд выдан', 'success');
+            }
+        });
+        
+        document.getElementById('issue-modal-cancel').addEventListener('click', () => {
+            document.getElementById('issue-build-modal').classList.remove('active');
+        });
+        
+        document.getElementById('issue-modal-close').addEventListener('click', () => {
+            document.getElementById('issue-build-modal').classList.remove('active');
+        });
+        
+        // Разрешение на уведомления
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
         }
-
-        // Запуск приложения
-        document.addEventListener('DOMContentLoaded', initApp);
-    </script>
+    }
+    
+    // Запуск приложения
+    document.addEventListener('DOMContentLoaded', initApp);
+})();
+</script>
 </body>
 </html>
