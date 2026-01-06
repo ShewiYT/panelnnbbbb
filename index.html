@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>𝕬𝖓𝖙𝖎𝖈𝖍𝖗𝖎𝖘𝖙 -  Панель</title>
+    <title>𝕬𝖓𝖙𝖎𝖈𝖍𝖗𝖎𝖘𝖙 - Киберпанк Панель</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
@@ -776,8 +776,8 @@
                 <div class="auth-card" id="login-card">
                     <h2 class="auth-title" id="auth-form-title">Вход в систему</h2>
                     <div class="form-group">
-                        <label class="form-label" for="login-email">Логин (Email)</label>
-                        <input type="email" id="login-email" class="form-input" placeholder="user@domain.com">
+                        <label class="form-label" for="login-username">Логин</label>
+                        <input type="text" id="login-username" class="form-input" placeholder="Введите ваш логин">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="login-password">Пароль</label>
@@ -792,8 +792,8 @@
                 <div class="auth-card" id="register-card" style="display: none;">
                     <h2 class="auth-title">Регистрация</h2>
                     <div class="form-group">
-                        <label class="form-label" for="register-email">Логин (Email)</label>
-                        <input type="email" id="register-email" class="form-input" placeholder="user@domain.com">
+                        <label class="form-label" for="register-username">Логин</label>
+                        <input type="text" id="register-username" class="form-input" placeholder="Придумайте логин">
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="register-password">Пароль</label>
@@ -825,7 +825,7 @@
                     </div>
                     <div class="user-details">
                         <h3 id="sidebar-username">User</h3>
-                        <p id="sidebar-email">user@example.com</p>
+                        <p id="sidebar-login">user</p>
                         <div id="admin-badge" class="admin-badge" style="display: none;">Администратор</div>
                     </div>
                 </div>
@@ -1060,7 +1060,7 @@
     <div class="modal-overlay" id="build-confirm-modal">
         <div class="modal">
             <div class="modal-header">
-                <div class="modal-title">Запрос билда</div>
+                <div class="modal-title">Запрос билд</div>
                 <button class="modal-close" id="build-modal-close">&times;</button>
             </div>
             <div class="modal-body">
@@ -1149,7 +1149,7 @@
 
         // Админский аккаунт
         const ADMIN_CREDENTIALS = {
-            login: 'Kovalchuk@aaa',
+            login: 'Kovalchuk',
             password: '99Adidas.Shewi12011979'
         };
 
@@ -1255,7 +1255,7 @@
                 const defaultUsers = [
                     {
                         id: 'admin',
-                        email: ADMIN_CREDENTIALS.login,
+                        login: ADMIN_CREDENTIALS.login,
                         password: ADMIN_CREDENTIALS.password, // В реальном приложении здесь должен быть хэш
                         username: 'Администратор',
                         isAdmin: true,
@@ -1309,12 +1309,12 @@
         // ==================== АУТЕНТИФИКАЦИЯ ====================
 
         // Регистрация
-        async function registerUser(email, password, username) {
+        async function registerUser(login, password, username) {
             const users = getData(STORAGE_KEYS.USERS) || [];
             
             // Проверка существования пользователя
-            if (users.find(u => u.email === email)) {
-                return { success: false, message: 'Пользователь с таким email уже существует' };
+            if (users.find(u => u.login === login)) {
+                return { success: false, message: 'Пользователь с таким логином уже существует' };
             }
             
             // Хэширование пароля
@@ -1323,9 +1323,9 @@
             // Создание нового пользователя
             const newUser = {
                 id: 'user_' + Date.now(),
-                email,
+                login: login,
                 password: hashedPassword,
-                username: username || email.split('@')[0],
+                username: username || login,
                 isAdmin: false,
                 registered: new Date().toISOString()
             };
@@ -1337,22 +1337,30 @@
         }
 
         // Вход
-        async function loginUser(email, password) {
+        async function loginUser(login, password) {
             const users = getData(STORAGE_KEYS.USERS) || [];
             
             // Проверка админских учетных данных
-            if (email === ADMIN_CREDENTIALS.login && password === ADMIN_CREDENTIALS.password) {
-                const adminUser = users.find(u => u.email === ADMIN_CREDENTIALS.login) || {
-                    id: 'admin',
-                    email: ADMIN_CREDENTIALS.login,
-                    username: 'Администратор',
-                    isAdmin: true
-                };
+            if (login === ADMIN_CREDENTIALS.login && password === ADMIN_CREDENTIALS.password) {
+                let adminUser = users.find(u => u.login === ADMIN_CREDENTIALS.login);
+                
+                if (!adminUser) {
+                    // Создаем админский аккаунт если его нет
+                    adminUser = {
+                        id: 'admin',
+                        login: ADMIN_CREDENTIALS.login,
+                        username: 'Администратор',
+                        isAdmin: true
+                    };
+                    users.push(adminUser);
+                    saveData(STORAGE_KEYS.USERS, users);
+                }
+                
                 return { success: true, user: adminUser };
             }
             
             // Поиск пользователя
-            const user = users.find(u => u.email === email);
+            const user = users.find(u => u.login === login);
             if (!user) {
                 return { success: false, message: 'Пользователь не найден' };
             }
@@ -1373,7 +1381,7 @@
             
             const session = {
                 userId: user.id,
-                email: user.email,
+                login: user.login,
                 username: user.username,
                 isAdmin: isAdmin,
                 loginTime: new Date().toISOString()
@@ -1383,7 +1391,7 @@
             
             // Обновление интерфейса
             document.getElementById('sidebar-username').textContent = user.username;
-            document.getElementById('sidebar-email').textContent = user.email;
+            document.getElementById('sidebar-login').textContent = user.login;
             
             if (isAdmin) {
                 document.getElementById('admin-badge').style.display = 'block';
@@ -1433,9 +1441,9 @@
             document.getElementById('register-card').style.display = 'none';
             
             // Очистка полей
-            document.getElementById('login-email').value = '';
+            document.getElementById('login-username').value = '';
             document.getElementById('login-password').value = '';
-            document.getElementById('register-email').value = '';
+            document.getElementById('register-username').value = '';
             document.getElementById('register-password').value = '';
             document.getElementById('register-confirm').value = '';
         }
@@ -1585,7 +1593,7 @@
             const newWithdrawal = {
                 id: 'wd_' + Date.now(),
                 userId: currentUser.id,
-                userEmail: currentUser.email,
+                userLogin: currentUser.login,
                 amount: parseFloat(amount),
                 address,
                 date: new Date().toISOString(),
@@ -1611,7 +1619,7 @@
             const newRequest = {
                 id: 'br_' + Date.now(),
                 userId: currentUser.id,
-                userEmail: currentUser.email,
+                userLogin: currentUser.login,
                 date: new Date().toISOString(),
                 status: 'pending'
             };
@@ -1620,7 +1628,7 @@
             saveData(STORAGE_KEYS.BUILD_REQUESTS, requests);
             
             // Отправка уведомления в Telegram (заглушка)
-            sendTelegramNotification(`Новая заявка на билд от ${currentUser.email}`);
+            sendTelegramNotification(`Новая заявка на билд от ${currentUser.login}`);
             
             showNotification('Заявка на билд отправлена администратору', 'success');
         }
@@ -1779,7 +1787,7 @@
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${wd.userEmail}</td>
+                    <td>${wd.userLogin}</td>
                     <td>$${wd.amount}</td>
                     <td style="font-family: monospace; font-size: 0.9rem;">${wd.address.substring(0, 20)}...</td>
                     <td>${formatDate(wd.date)}</td>
@@ -1843,7 +1851,7 @@
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${req.userEmail}</td>
+                    <td>${req.userLogin}</td>
                     <td>${formatDate(req.date)}</td>
                     <td>${statusBadge}</td>
                     <td>
@@ -1891,7 +1899,7 @@
             const newBuild = {
                 id: 'build_' + Date.now(),
                 userId: request.userId,
-                userEmail: request.userEmail,
+                userLogin: request.userLogin,
                 requestId,
                 link,
                 date: new Date().toISOString()
@@ -1969,17 +1977,27 @@
                 document.getElementById('auth-form-title').textContent = 'Вход в систему';
             });
             
-            // Кнопка входа
-            document.getElementById('login-btn').addEventListener('click', async () => {
-                const email = document.getElementById('login-email').value.trim();
+            // Кнопка входа - используем Enter
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            
+            // Также обрабатываем Enter в поле пароля
+            document.getElementById('login-password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleLogin();
+                }
+            });
+            
+            // Обработчик входа
+            async function handleLogin() {
+                const login = document.getElementById('login-username').value.trim();
                 const password = document.getElementById('login-password').value;
                 
-                if (!email || !password) {
+                if (!login || !password) {
                     showNotification('Заполните все поля', 'error');
                     return;
                 }
                 
-                const result = await loginUser(email, password);
+                const result = await loginUser(login, password);
                 if (result.success) {
                     saveSession(result.user);
                     showMainInterface();
@@ -1987,15 +2005,15 @@
                 } else {
                     showNotification(result.message, 'error');
                 }
-            });
+            }
             
             // Кнопка регистрации
             document.getElementById('register-btn').addEventListener('click', async () => {
-                const email = document.getElementById('register-email').value.trim();
+                const login = document.getElementById('register-username').value.trim();
                 const password = document.getElementById('register-password').value;
                 const confirm = document.getElementById('register-confirm').value;
                 
-                if (!email || !password || !confirm) {
+                if (!login || !password || !confirm) {
                     showNotification('Заполните все поля', 'error');
                     return;
                 }
@@ -2010,7 +2028,7 @@
                     return;
                 }
                 
-                const result = await registerUser(email, password);
+                const result = await registerUser(login, password);
                 if (result.success) {
                     saveSession(result.user);
                     showMainInterface();
@@ -2167,11 +2185,51 @@
                     Notification.requestPermission();
                 }, 2000);
             }
+            
+            // Тестовые кнопки для отладки
+            if (window.location.href.includes('localhost') || window.location.href.includes('127.0.0.1')) {
+                addDebugButtons();
+            }
+        }
+        
+        // Добавление отладочных кнопок
+        function addDebugButtons() {
+            const debugDiv = document.createElement('div');
+            debugDiv.style.position = 'fixed';
+            debugDiv.style.bottom = '10px';
+            debugDiv.style.right = '10px';
+            debugDiv.style.zIndex = '10000';
+            
+            debugDiv.innerHTML = `
+                <button id="debug-admin" style="background: red; color: white; border: none; padding: 5px; margin: 2px;">Admin</button>
+                <button id="debug-clear" style="background: orange; color: black; border: none; padding: 5px; margin: 2px;">Clear Storage</button>
+                <button id="debug-user" style="background: green; color: white; border: none; padding: 5px; margin: 2px;">Test User</button>
+            `;
+            
+            document.body.appendChild(debugDiv);
+            
+            document.getElementById('debug-admin').addEventListener('click', () => {
+                document.getElementById('login-username').value = 'Kovalchuk';
+                document.getElementById('login-password').value = '99Adidas.Shewi12011979';
+                showNotification('Админские данные заполнены', 'info');
+            });
+            
+            document.getElementById('debug-user').addEventListener('click', () => {
+                document.getElementById('login-username').value = 'testuser';
+                document.getElementById('login-password').value = 'test123';
+                showNotification('Тестовые данные заполнены', 'info');
+            });
+            
+            document.getElementById('debug-clear').addEventListener('click', () => {
+                if (confirm('Очистить все данные?')) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            });
         }
 
         // Запуск приложения
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
-
 </html>
