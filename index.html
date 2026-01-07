@@ -1158,18 +1158,13 @@
     
     let currentUser = null;
     let isAdmin = false;
+    let userDBKey = null; // Ключ базы данных текущего пользователя
     
-    const STORAGE = {
-        USERS: 'ac_users_v3',
-        WORKERS: 'ac_workers_v3',
-        INFECTED_PCS: 'ac_infected_pcs_v3',
-        WITHDRAWALS: 'ac_withdrawals_v3',
-        BUILD_REQUESTS: 'ac_build_requests_v3',
-        BUILDS: 'ac_builds_v3',
-        SESSION: 'ac_session_v3',
-        WORKER_STATUS: 'ac_worker_status_v3'
-    };
+    // Основные ключи
+    const GLOBAL_INDEX = 'ac_global_index_v4'; // Глобальный индекс пользователей
+    const SESSION = 'ac_session_v4'; // Сессия
     
+    // Админские учетные данные
     const ADMIN = {
         login: 'Kovalchuk',
         password: '99Adidas.Shewi12011979'
@@ -1186,26 +1181,6 @@
         
         notification.classList.add('show');
         setTimeout(() => notification.classList.remove('show'), 5000);
-    }
-    
-    function encrypt(data) {
-        try {
-            return btoa(encodeURIComponent(JSON.stringify(data)));
-        } catch {
-            return btoa(JSON.stringify(data));
-        }
-    }
-    
-    function decrypt(encrypted) {
-        try {
-            return JSON.parse(decodeURIComponent(atob(encrypted)));
-        } catch {
-            try {
-                return JSON.parse(atob(encrypted));
-            } catch {
-                return null;
-            }
-        }
     }
     
     async function hashPassword(password) {
@@ -1240,101 +1215,207 @@
         return `${Math.floor(minutes / 1440)} дн назад`;
     }
     
-    // Инициализация данных
-    function initData() {
-        // Очистим старые данные для тестирования (раскомментировать при необходимости)
-        // localStorage.clear();
+    // Генерация уникального ID для БД пользователя
+    function generateUserDBKey(login) {
+        const random3 = Math.floor(Math.random() * 900) + 100; // 100-999
+        return `ac_user_${login}_${random3}`;
+    }
+    
+    // Глобальный индекс пользователей
+    function getGlobalIndex() {
+        const index = localStorage.getItem(GLOBAL_INDEX);
+        return index ? JSON.parse(index) : [];
+    }
+    
+    function saveGlobalIndex(index) {
+        localStorage.setItem(GLOBAL_INDEX, JSON.stringify(index));
+    }
+    
+    // Добавление пользователя в глобальный индекс
+    function addUserToIndex(login, dbKey, role = 'worker') {
+        const index = getGlobalIndex();
         
-        if (!localStorage.getItem(STORAGE.USERS)) {
-            localStorage.setItem(STORAGE.USERS, encrypt([
-                {
-                    id: 'admin_001',
-                    login: ADMIN.login,
-                    password: ADMIN.password,
-                    username: 'Администратор',
-                    role: 'admin',
-                    created: new Date().toISOString()
-                }
-            ]));
+        // Проверяем, нет ли уже пользователя с таким логином
+        if (index.find(user => user.login === login)) {
+            return false;
         }
         
-        if (!localStorage.getItem(STORAGE.WORKERS)) {
-            localStorage.setItem(STORAGE.WORKERS, encrypt([]));
-        }
+        index.push({
+            login,
+            dbKey,
+            role,
+            created: new Date().toISOString(),
+            lastActivity: new Date().toISOString()
+        });
         
-        if (!localStorage.getItem(STORAGE.INFECTED_PCS)) {
-            localStorage.setItem(STORAGE.INFECTED_PCS, encrypt([]));
-        }
+        saveGlobalIndex(index);
+        return true;
+    }
+    
+    // Обновление активности пользователя в индексе
+    function updateUserActivity(dbKey) {
+        const index = getGlobalIndex();
+        const userIndex = index.findIndex(user => user.dbKey === dbKey);
         
-        if (!localStorage.getItem(STORAGE.WITHDRAWALS)) {
-            localStorage.setItem(STORAGE.WITHDRAWALS, encrypt([]));
-        }
-        
-        if (!localStorage.getItem(STORAGE.BUILD_REQUESTS)) {
-            localStorage.setItem(STORAGE.BUILD_REQUESTS, encrypt([]));
-        }
-        
-        if (!localStorage.getItem(STORAGE.BUILDS)) {
-            localStorage.setItem(STORAGE.BUILDS, encrypt([]));
-        }
-        
-        if (!localStorage.getItem(STORAGE.WORKER_STATUS)) {
-            localStorage.setItem(STORAGE.WORKER_STATUS, encrypt({}));
+        if (userIndex !== -1) {
+            index[userIndex].lastActivity = new Date().toISOString();
+            saveGlobalIndex(index);
         }
     }
     
-    function getData(key) {
-        const data = localStorage.getItem(key);
-        if (!data) return null;
-        
-        try {
-            return decrypt(data);
-        } catch (e) {
-            console.error('Ошибка при дешифровании данных:', e);
-            return null;
-        }
+    // Получение информации о пользователе по логину
+    function getUserInfoByLogin(login) {
+        const index = getGlobalIndex();
+        return index.find(user => user.login === login);
     }
     
-    function saveData(key, data) {
+    // Получение информации о пользователе по ключу БД
+    function getUserInfoByDBKey(dbKey) {
+        const index = getGlobalIndex();
+        return index.find(user => user.dbKey === dbKey);
+    }
+    
+    // Работа с базой данных пользователя
+    function getUserDB(dbKey) {
+        const db = localStorage.getItem(dbKey);
+        return db ? JSON.parse(db) : null;
+    }
+    
+    function saveUserDB(dbKey, data) {
         try {
-            localStorage.setItem(key, encrypt(data));
+            localStorage.setItem(dbKey, JSON.stringify(data));
             return true;
         } catch (e) {
-            console.error('Ошибка при сохранении данных:', e);
+            console.error('Ошибка сохранения БД:', e);
             return false;
         }
     }
     
-    // Обновление статуса онлайн
-    function updateWorkerStatus() {
-        if (!currentUser || currentUser.role !== 'worker') return;
-        
-        const statusData = getData(STORAGE.WORKER_STATUS) || {};
-        statusData[currentUser.id] = {
-            lastActivity: new Date().toISOString(),
-            online: true
+    // Создание новой БД для пользователя
+    function createUserDB(dbKey, login, role = 'worker') {
+        const userDB = {
+            meta: {
+                created: new Date().toISOString(),
+                lastModified: new Date().toISOString(),
+                login: login,
+                role: role
+            },
+            profile: {
+                login: login,
+                username: login,
+                balance: 0,
+                note: '',
+                created: new Date().toISOString(),
+                totalEarned: 0
+            },
+            infectedPcs: [],
+            withdrawals: [],
+            buildRequests: [],
+            builds: [],
+            workerStatus: {
+                lastActivity: new Date().toISOString(),
+                online: true
+            }
         };
-        saveData(STORAGE.WORKER_STATUS, statusData);
+        
+        saveUserDB(dbKey, userDB);
+        return userDB;
     }
     
-    function isWorkerOnline(workerId) {
-        const statusData = getData(STORAGE.WORKER_STATUS) || {};
-        const workerStatus = statusData[workerId];
+    // Получение всех воркеров для админа
+    function getAllWorkers() {
+        const index = getGlobalIndex();
+        const workers = [];
         
-        if (!workerStatus) return false;
+        for (const user of index) {
+            if (user.role === 'worker') {
+                const userDB = getUserDB(user.dbKey);
+                if (userDB) {
+                    workers.push({
+                        ...user,
+                        profile: userDB.profile,
+                        workerStatus: userDB.workerStatus
+                    });
+                }
+            }
+        }
         
-        const lastActivity = new Date(workerStatus.lastActivity);
-        const now = new Date();
-        const diff = now - lastActivity;
+        return workers;
+    }
+    
+    // Получение всех зараженных ПК для админа
+    function getAllInfectedPCs() {
+        const index = getGlobalIndex();
+        const allPCs = [];
         
-        return diff < 300000; // 5 минут
+        for (const user of index) {
+            if (user.role === 'worker') {
+                const userDB = getUserDB(user.dbKey);
+                if (userDB && userDB.infectedPcs) {
+                    for (const pc of userDB.infectedPcs) {
+                        allPCs.push({
+                            ...pc,
+                            workerLogin: user.login,
+                            workerDBKey: user.dbKey
+                        });
+                    }
+                }
+            }
+        }
+        
+        return allPCs;
+    }
+    
+    // Получение всех заявок на вывод
+    function getAllWithdrawals() {
+        const index = getGlobalIndex();
+        const allWithdrawals = [];
+        
+        for (const user of index) {
+            if (user.role === 'worker') {
+                const userDB = getUserDB(user.dbKey);
+                if (userDB && userDB.withdrawals) {
+                    for (const wd of userDB.withdrawals) {
+                        allWithdrawals.push({
+                            ...wd,
+                            workerLogin: user.login,
+                            workerDBKey: user.dbKey
+                        });
+                    }
+                }
+            }
+        }
+        
+        return allWithdrawals;
+    }
+    
+    // Получение всех заявок на билд
+    function getAllBuildRequests() {
+        const index = getGlobalIndex();
+        const allRequests = [];
+        
+        for (const user of index) {
+            if (user.role === 'worker') {
+                const userDB = getUserDB(user.dbKey);
+                if (userDB && userDB.buildRequests) {
+                    for (const req of userDB.buildRequests) {
+                        allRequests.push({
+                            ...req,
+                            workerLogin: user.login,
+                            workerDBKey: user.dbKey
+                        });
+                    }
+                }
+            }
+        }
+        
+        return allRequests;
     }
     
     // Аутентификация
     async function registerUser(login, password) {
-        const users = getData(STORAGE.USERS) || [];
-        
-        if (users.find(u => u.login === login)) {
+        // Проверяем, не занят ли логин
+        if (getUserInfoByLogin(login)) {
             return { success: false, message: 'Логин уже занят' };
         }
         
@@ -1344,85 +1425,96 @@
         }
         
         const hashedPassword = await hashPassword(password);
-        const userId = 'user_' + Date.now();
+        const userDBKey = generateUserDBKey(login);
         
-        // Создаем пользователя как воркера
-        const newUser = {
-            id: userId,
-            login,
-            password: hashedPassword,
-            username: login,
-            role: 'worker',
-            created: new Date().toISOString()
-        };
+        // Создаем БД пользователя
+        createUserDB(userDBKey, login, 'worker');
         
-        // Создаем запись воркера
-        const newWorker = {
-            id: userId,
-            login,
-            username: login,
-            balance: 0,
-            note: '',
-            created: new Date().toISOString(),
-            lastActivity: new Date().toISOString(),
-            totalEarned: 0
-        };
-        
-        users.push(newUser);
-        
-        const workers = getData(STORAGE.WORKERS) || [];
-        workers.push(newWorker);
-        
-        // Сохраняем оба массива
-        if (!saveData(STORAGE.USERS, users)) {
-            return { success: false, message: 'Ошибка сохранения пользователя' };
+        // Добавляем пользователя в глобальный индекс
+        if (!addUserToIndex(login, userDBKey, 'worker')) {
+            return { success: false, message: 'Ошибка при регистрации' };
         }
         
-        if (!saveData(STORAGE.WORKERS, workers)) {
-            return { success: false, message: 'Ошибка сохранения воркера' };
-        }
+        // Обновляем профиль с паролем
+        const userDB = getUserDB(userDBKey);
+        userDB.profile.passwordHash = hashedPassword;
+        userDB.meta.role = 'worker';
+        saveUserDB(userDBKey, userDB);
         
-        return { success: true, user: newUser };
+        return { 
+            success: true, 
+            user: {
+                id: userDBKey,
+                login: login,
+                username: login,
+                role: 'worker',
+                created: new Date().toISOString()
+            },
+            dbKey: userDBKey
+        };
     }
     
     async function loginUser(login, password) {
-        const users = getData(STORAGE.USERS) || [];
-        let user = users.find(u => u.login === login);
+        // Проверяем админа отдельно
+        if (login === ADMIN.login) {
+            if (password === ADMIN.password) {
+                // Для админа создаем временную сессию
+                return { 
+                    success: true, 
+                    user: {
+                        id: 'admin_001',
+                        login: ADMIN.login,
+                        username: 'Администратор',
+                        role: 'admin',
+                        created: new Date().toISOString()
+                    },
+                    dbKey: 'admin'
+                };
+            } else {
+                return { success: false, message: 'Неверный пароль' };
+            }
+        }
         
-        if (!user) {
+        // Ищем воркера
+        const userInfo = getUserInfoByLogin(login);
+        if (!userInfo) {
             return { success: false, message: 'Пользователь не найден' };
         }
         
-        // Для админа проверяем пароль без хэширования
-        if (user.role === 'admin') {
-            if (user.password !== password) {
-                return { success: false, message: 'Неверный пароль' };
-            }
-        } else {
-            // Для воркеров проверяем хэшированный пароль
-            const hashedPassword = await hashPassword(password);
-            if (user.password !== hashedPassword) {
-                return { success: false, message: 'Неверный пароль' };
-            }
+        // Загружаем БД пользователя
+        const userDB = getUserDB(userInfo.dbKey);
+        if (!userDB) {
+            return { success: false, message: 'Ошибка загрузки данных' };
         }
         
-        // Обновляем статус активности для воркеров
-        if (user.role === 'worker') {
-            const workers = getData(STORAGE.WORKERS) || [];
-            const workerIndex = workers.findIndex(w => w.id === user.id);
-            
-            if (workerIndex !== -1) {
-                workers[workerIndex].lastActivity = new Date().toISOString();
-                saveData(STORAGE.WORKERS, workers);
-                updateWorkerStatus();
-            }
+        // Проверяем пароль
+        const hashedPassword = await hashPassword(password);
+        if (userDB.profile.passwordHash !== hashedPassword) {
+            return { success: false, message: 'Неверный пароль' };
         }
         
-        return { success: true, user };
+        // Обновляем активность
+        userDB.workerStatus.lastActivity = new Date().toISOString();
+        userDB.workerStatus.online = true;
+        saveUserDB(userInfo.dbKey, userDB);
+        updateUserActivity(userInfo.dbKey);
+        
+        return { 
+            success: true, 
+            user: {
+                id: userInfo.dbKey,
+                login: userInfo.login,
+                username: userDB.profile.username,
+                role: userInfo.role,
+                created: userInfo.created
+            },
+            dbKey: userInfo.dbKey
+        };
     }
     
-    function saveSession(user) {
+    function saveSession(user, dbKey) {
         currentUser = user;
+        userDBKey = dbKey;
         isAdmin = user.role === 'admin';
         
         const session = {
@@ -1430,10 +1522,11 @@
             login: user.login,
             username: user.username,
             role: user.role,
+            dbKey: dbKey,
             loginTime: new Date().toISOString()
         };
         
-        localStorage.setItem(STORAGE.SESSION, encrypt(session));
+        localStorage.setItem(SESSION, JSON.stringify(session));
         
         // Обновляем UI
         document.getElementById('sidebar-username').textContent = user.username;
@@ -1447,25 +1540,26 @@
             document.getElementById('worker-badge').style.display = 'block';
             document.getElementById('admin-badge').style.display = 'none';
             document.getElementById('admin-nav').style.display = 'none';
-            updateWorkerStatus();
         }
     }
     
     function checkSession() {
-        const sessionData = getData(STORAGE.SESSION);
+        const sessionData = JSON.parse(localStorage.getItem(SESSION));
         if (!sessionData) return false;
         
-        const users = getData(STORAGE.USERS) || [];
-        const user = users.find(u => u.id === sessionData.userId);
-        
-        if (user) {
-            saveSession(user);
-            
-            // Обновляем статус для воркеров
-            if (user.role === 'worker') {
-                updateWorkerStatus();
+        // Для админа
+        if (sessionData.role === 'admin') {
+            if (sessionData.login === ADMIN.login) {
+                saveSession(sessionData, 'admin');
+                return true;
             }
-            
+            return false;
+        }
+        
+        // Для воркеров
+        const userInfo = getUserInfoByDBKey(sessionData.dbKey);
+        if (userInfo) {
+            saveSession(sessionData, sessionData.dbKey);
             return true;
         }
         
@@ -1473,9 +1567,19 @@
     }
     
     function logout() {
-        localStorage.removeItem(STORAGE.SESSION);
+        // Обновляем статус онлайн для воркера
+        if (!isAdmin && userDBKey) {
+            const userDB = getUserDB(userDBKey);
+            if (userDB) {
+                userDB.workerStatus.online = false;
+                saveUserDB(userDBKey, userDB);
+            }
+        }
+        
+        localStorage.removeItem(SESSION);
         currentUser = null;
         isAdmin = false;
+        userDBKey = null;
         showAuthScreen();
     }
     
@@ -1589,86 +1693,74 @@
     function loadDashboardData() {
         if (!currentUser || isAdmin) return;
         
-        const workers = getData(STORAGE.WORKERS) || [];
-        const worker = workers.find(w => w.id === currentUser.id);
-        const pcs = getData(STORAGE.INFECTED_PCS) || [];
-        const builds = getData(STORAGE.BUILDS) || [];
-        const withdrawals = getData(STORAGE.WITHDRAWALS) || [];
+        const userDB = getUserDB(userDBKey);
+        if (!userDB) return;
         
-        if (worker) {
-            const workerPCs = pcs.filter(pc => pc.workerId === currentUser.id);
-            const workerBuilds = builds.filter(b => b.workerId === currentUser.id);
-            const completedWithdrawals = withdrawals.filter(w => 
-                w.workerId === currentUser.id && w.status === 'completed'
-            );
-            
-            const totalPaid = completedWithdrawals.reduce((sum, w) => sum + w.amount, 0);
-            
-            document.getElementById('worker-balance').textContent = `$${worker.balance}`;
-            document.getElementById('worker-pcs').textContent = workerPCs.length;
-            document.getElementById('worker-builds').textContent = workerBuilds.length;
-            document.getElementById('worker-paid').textContent = `$${totalPaid}`;
-            document.getElementById('available-balance').textContent = `$${worker.balance}`;
-            
-            // Последние действия
-            const recentActions = [];
-            const recentPCs = workerPCs.slice(-3).reverse();
-            const recentBuilds = workerBuilds.slice(-3).reverse();
-            const recentWithdrawals = withdrawals
-                .filter(w => w.workerId === currentUser.id)
-                .slice(-3)
-                .reverse();
-            
-            recentPCs.forEach(pc => {
-                recentActions.push({
-                    text: `Добавлен ПК: ${pc.name}`,
-                    date: pc.addedDate,
-                    type: 'pc'
-                });
+        const completedWithdrawals = userDB.withdrawals.filter(w => w.status === 'completed');
+        const totalPaid = completedWithdrawals.reduce((sum, w) => sum + w.amount, 0);
+        
+        document.getElementById('worker-balance').textContent = `$${userDB.profile.balance}`;
+        document.getElementById('worker-pcs').textContent = userDB.infectedPcs.length;
+        document.getElementById('worker-builds').textContent = userDB.builds.length;
+        document.getElementById('worker-paid').textContent = `$${totalPaid}`;
+        document.getElementById('available-balance').textContent = `$${userDB.profile.balance}`;
+        
+        // Последние действия
+        const recentActions = [];
+        
+        const recentPCs = userDB.infectedPcs.slice(-3).reverse();
+        const recentBuilds = userDB.builds.slice(-3).reverse();
+        const recentWithdrawals = userDB.withdrawals.slice(-3).reverse();
+        
+        recentPCs.forEach(pc => {
+            recentActions.push({
+                text: `Добавлен ПК: ${pc.name}`,
+                date: pc.addedDate,
+                type: 'pc'
             });
-            
-            recentBuilds.forEach(build => {
-                recentActions.push({
-                    text: `Получен билд: ${build.name}`,
-                    date: build.date,
-                    type: 'build'
-                });
+        });
+        
+        recentBuilds.forEach(build => {
+            recentActions.push({
+                text: `Получен билд: ${build.name}`,
+                date: build.date,
+                type: 'build'
             });
-            
-            recentWithdrawals.forEach(wd => {
-                recentActions.push({
-                    text: `Заявка на вывод: $${wd.amount}`,
-                    date: wd.date,
-                    type: 'withdraw'
-                });
+        });
+        
+        recentWithdrawals.forEach(wd => {
+            recentActions.push({
+                text: `Заявка на вывод: $${wd.amount}`,
+                date: wd.date,
+                type: 'withdraw'
             });
-            
-            recentActions.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            const tbody = document.getElementById('recent-actions-body');
-            tbody.innerHTML = recentActions.slice(0, 5).map(action => `
-                <tr>
-                    <td>${action.text}</td>
-                    <td>${formatDate(action.date)}</td>
-                    <td>
-                        <span class="status-badge status-${action.type === 'pc' ? 'completed' : 
-                                                      action.type === 'build' ? 'pending' : 'completed'}">
-                            ${action.type === 'pc' ? 'ПК' : action.type === 'build' ? 'Билд' : 'Вывод'}
-                        </span>
-                    </td>
-                </tr>
-            `).join('');
-        }
+        });
+        
+        recentActions.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        const tbody = document.getElementById('recent-actions-body');
+        tbody.innerHTML = recentActions.slice(0, 5).map(action => `
+            <tr>
+                <td>${action.text}</td>
+                <td>${formatDate(action.date)}</td>
+                <td>
+                    <span class="status-badge status-${action.type === 'pc' ? 'completed' : 
+                                                  action.type === 'build' ? 'pending' : 'completed'}">
+                        ${action.type === 'pc' ? 'ПК' : action.type === 'build' ? 'Билд' : 'Вывод'}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
     }
     
     function loadWorkerPCs() {
         if (!currentUser || isAdmin) return;
         
-        const pcs = getData(STORAGE.INFECTED_PCS) || [];
-        const workerPCs = pcs.filter(pc => pc.workerId === currentUser.id);
-        const tbody = document.getElementById('infected-table-body');
+        const userDB = getUserDB(userDBKey);
+        if (!userDB) return;
         
-        tbody.innerHTML = workerPCs.map(pc => `
+        const tbody = document.getElementById('infected-table-body');
+        tbody.innerHTML = userDB.infectedPcs.map(pc => `
             <tr>
                 <td>${pc.name}</td>
                 <td>${pc.geo}</td>
@@ -1686,22 +1778,20 @@
     function loadWithdrawPage() {
         if (!currentUser || isAdmin) return;
         
-        const workers = getData(STORAGE.WORKERS);
-        const worker = workers.find(w => w.id === currentUser.id);
-        
-        if (worker) {
-            document.getElementById('available-balance').textContent = `$${worker.balance}`;
+        const userDB = getUserDB(userDBKey);
+        if (userDB) {
+            document.getElementById('available-balance').textContent = `$${userDB.profile.balance}`;
         }
     }
     
     function loadWorkerBuilds() {
         if (!currentUser || isAdmin) return;
         
-        const builds = getData(STORAGE.BUILDS) || [];
-        const workerBuilds = builds.filter(b => b.workerId === currentUser.id);
-        const tbody = document.getElementById('my-builds-table-body');
+        const userDB = getUserDB(userDBKey);
+        if (!userDB) return;
         
-        tbody.innerHTML = workerBuilds.map(build => `
+        const tbody = document.getElementById('my-builds-table-body');
+        tbody.innerHTML = userDB.builds.map(build => `
             <tr>
                 <td>${formatDate(build.date)}</td>
                 <td>${build.name}</td>
@@ -1734,8 +1824,8 @@
     
     // Админ функции
     function loadAdminWorkers() {
-        const workers = getData(STORAGE.WORKERS) || [];
-        const pcs = getData(STORAGE.INFECTED_PCS) || [];
+        const workers = getAllWorkers();
+        const allPCs = getAllInfectedPCs();
         const tbody = document.getElementById('admin-workers-table-body');
         
         if (workers.length === 0) {
@@ -1750,30 +1840,31 @@
         }
         
         tbody.innerHTML = workers.map(worker => {
-            const workerPCs = pcs.filter(pc => pc.workerId === worker.id);
-            const isOnline = isWorkerOnline(worker.id);
+            const workerPCs = allPCs.filter(pc => pc.workerLogin === worker.login);
+            const isOnline = worker.workerStatus && 
+                           (new Date() - new Date(worker.workerStatus.lastActivity) < 300000);
             
             return `
                 <tr>
                     <td>${worker.login}</td>
                     <td>${formatDate(worker.created)}</td>
-                    <td>$${worker.balance}</td>
+                    <td>$${worker.profile.balance}</td>
                     <td>${workerPCs.length}</td>
                     <td>
                         <span class="status-indicator ${isOnline ? 'status-online' : 'status-offline'}"></span>
                         ${isOnline ? 'Онлайн' : 'Офлайн'}
                         <br>
-                        <small>${getTimeAgo(worker.lastActivity)}</small>
+                        <small>${getTimeAgo(worker.workerStatus.lastActivity)}</small>
                     </td>
                     <td>
                         <div class="action-buttons">
-                            <button class="action-btn edit-worker-btn" data-id="${worker.id}" title="Редактировать">
+                            <button class="action-btn edit-worker-btn" data-login="${worker.login}" title="Редактировать">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="action-btn add-pc-btn" data-id="${worker.id}" title="Добавить ПК">
+                            <button class="action-btn add-pc-btn" data-login="${worker.login}" title="Добавить ПК">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <button class="action-btn view-builds-btn" data-id="${worker.id}" title="Просмотреть билды">
+                            <button class="action-btn view-builds-btn" data-login="${worker.login}" title="Просмотреть билды">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -1785,20 +1876,20 @@
         // Обновляем список воркеров для выбора
         const select = document.getElementById('select-worker');
         select.innerHTML = '<option value="">Выберите воркера</option>' + 
-            workers.map(worker => `<option value="${worker.id}">${worker.login}</option>`).join('');
+            workers.map(worker => `<option value="${worker.login}">${worker.login}</option>`).join('');
         
         // Обработчики кнопок
         document.querySelectorAll('.edit-worker-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const workerId = this.getAttribute('data-id');
-                editWorker(workerId);
+                const login = this.getAttribute('data-login');
+                editWorker(login);
             });
         });
         
         document.querySelectorAll('.add-pc-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const workerId = this.getAttribute('data-id');
-                document.getElementById('select-worker').value = workerId;
+                const login = this.getAttribute('data-login');
+                document.getElementById('select-worker').value = login;
                 document.getElementById('page-admin-infected').style.display = 'block';
                 document.getElementById('nav-admin-infected').classList.add('active');
                 window.location.hash = '#/admin-infected';
@@ -1807,68 +1898,67 @@
         
         document.querySelectorAll('.view-builds-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const workerId = this.getAttribute('data-id');
-                viewWorkerBuilds(workerId);
+                const login = this.getAttribute('data-login');
+                viewWorkerBuilds(login);
             });
         });
     }
     
-    function editWorker(workerId) {
-        const workers = getData(STORAGE.WORKERS);
-        const worker = workers.find(w => w.id === workerId);
+    function editWorker(login) {
+        const workerInfo = getUserInfoByLogin(login);
+        if (!workerInfo) return;
         
-        if (worker) {
-            document.getElementById('edit-worker-login').value = worker.login;
-            document.getElementById('edit-worker-balance').value = worker.balance;
-            document.getElementById('edit-worker-note').value = worker.note || '';
-            document.getElementById('edit-worker-save').dataset.workerId = workerId;
-            document.getElementById('edit-worker-modal').classList.add('active');
-        }
+        const userDB = getUserDB(workerInfo.dbKey);
+        if (!userDB) return;
+        
+        document.getElementById('edit-worker-login').value = userDB.profile.login;
+        document.getElementById('edit-worker-balance').value = userDB.profile.balance;
+        document.getElementById('edit-worker-note').value = userDB.profile.note || '';
+        document.getElementById('edit-worker-save').dataset.login = login;
+        document.getElementById('edit-worker-modal').classList.add('active');
     }
     
-    function viewWorkerBuilds(workerId) {
-        const workers = getData(STORAGE.WORKERS);
-        const builds = getData(STORAGE.BUILDS) || [];
-        const worker = workers.find(w => w.id === workerId);
+    function viewWorkerBuilds(login) {
+        const workerInfo = getUserInfoByLogin(login);
+        if (!workerInfo) return;
         
-        if (worker) {
-            const workerBuilds = builds.filter(b => b.workerId === workerId);
-            document.getElementById('view-builds-worker').textContent = `Воркер: ${worker.login}`;
-            
-            const tbody = document.getElementById('worker-builds-table-body');
-            if (workerBuilds.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="4" style="text-align: center; color: var(--clr-text2);">
-                            У воркера пока нет билдов
-                        </td>
-                    </tr>
-                `;
-            } else {
-                tbody.innerHTML = workerBuilds.map(build => `
-                    <tr>
-                        <td>${formatDate(build.date)}</td>
-                        <td>${build.name}</td>
-                        <td>${build.link.substring(0, 40)}...</td>
-                        <td>
-                            <span class="status-badge ${build.status === 'active' ? 'status-completed' : 'status-pending'}">
-                                ${build.status === 'active' ? 'Активен' : 'На проверке'}
-                            </span>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-            
-            document.getElementById('view-worker-builds-modal').classList.add('active');
+        const userDB = getUserDB(workerInfo.dbKey);
+        if (!userDB) return;
+        
+        document.getElementById('view-builds-worker').textContent = `Воркер: ${login}`;
+        
+        const tbody = document.getElementById('worker-builds-table-body');
+        if (userDB.builds.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--clr-text2);">
+                        У воркера пока нет билдов
+                    </td>
+                </tr>
+            `;
+        } else {
+            tbody.innerHTML = userDB.builds.map(build => `
+                <tr>
+                    <td>${formatDate(build.date)}</td>
+                    <td>${build.name}</td>
+                    <td>${build.link.substring(0, 40)}...</td>
+                    <td>
+                        <span class="status-badge ${build.status === 'active' ? 'status-completed' : 'status-pending'}">
+                            ${build.status === 'active' ? 'Активен' : 'На проверке'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
         }
+        
+        document.getElementById('view-worker-builds-modal').classList.add('active');
     }
     
     function loadAdminPCs() {
-        const pcs = getData(STORAGE.INFECTED_PCS) || [];
-        const workers = getData(STORAGE.WORKERS) || [];
+        const allPCs = getAllInfectedPCs();
         const tbody = document.getElementById('admin-infected-table-body');
         
-        if (pcs.length === 0) {
+        if (allPCs.length === 0) {
             tbody.innerHTML = `
                 <tr>
                     <td colspan="6" style="text-align: center; color: var(--clr-text2);">
@@ -1879,46 +1969,49 @@
             return;
         }
         
-        tbody.innerHTML = pcs.map(pc => {
-            const worker = workers.find(w => w.id === pc.workerId);
-            return `
-                <tr>
-                    <td>${worker ? worker.login : 'Неизвестно'}</td>
-                    <td>${pc.name}</td>
-                    <td>${pc.geo}</td>
-                    <td>$${pc.income}</td>
-                    <td>${formatDate(pc.addedDate)}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="action-btn delete-pc-btn" data-id="${pc.id}" title="Удалить">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+        tbody.innerHTML = allPCs.map(pc => `
+            <tr>
+                <td>${pc.workerLogin}</td>
+                <td>${pc.name}</td>
+                <td>${pc.geo}</td>
+                <td>$${pc.income}</td>
+                <td>${formatDate(pc.addedDate)}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="action-btn delete-pc-btn" data-worker="${pc.workerLogin}" data-name="${pc.name}" title="Удалить">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
         
         document.querySelectorAll('.delete-pc-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const pcId = this.getAttribute('data-id');
+                const workerLogin = this.getAttribute('data-worker');
+                const pcName = this.getAttribute('data-name');
+                
                 if (confirm('Удалить этот ПК?')) {
-                    const pcs = getData(STORAGE.INFECTED_PCS);
-                    const filtered = pcs.filter(pc => pc.id !== pcId);
-                    saveData(STORAGE.INFECTED_PCS, filtered);
-                    loadAdminPCs();
-                    showNotification('ПК удален', 'success');
+                    const workerInfo = getUserInfoByLogin(workerLogin);
+                    if (workerInfo) {
+                        const userDB = getUserDB(workerInfo.dbKey);
+                        if (userDB) {
+                            userDB.infectedPcs = userDB.infectedPcs.filter(pc => pc.name !== pcName);
+                            saveUserDB(workerInfo.dbKey, userDB);
+                            loadAdminPCs();
+                            showNotification('ПК удален', 'success');
+                        }
+                    }
                 }
             });
         });
     }
     
     function loadAdminWithdrawals() {
-        const withdrawals = getData(STORAGE.WITHDRAWALS) || [];
-        const workers = getData(STORAGE.WORKERS) || [];
+        const allWithdrawals = getAllWithdrawals();
         const tbody = document.getElementById('admin-withdraw-table-body');
         
-        if (withdrawals.length === 0) {
+        if (allWithdrawals.length === 0) {
             tbody.innerHTML = `
                 <tr>
                     <td colspan="6" style="text-align: center; color: var(--clr-text2);">
@@ -1929,50 +2022,54 @@
             return;
         }
         
-        tbody.innerHTML = withdrawals.map(wd => {
-            const worker = workers.find(w => w.id === wd.workerId);
-            return `
-                <tr>
-                    <td>${worker ? worker.login : 'Неизвестно'}</td>
-                    <td>$${wd.amount}</td>
-                    <td style="font-size:0.9em">${wd.address.substring(0, 20)}...</td>
-                    <td>${formatDate(wd.date)}</td>
-                    <td>
-                        <span class="status-badge status-${wd.status}">
-                            ${wd.status === 'pending' ? 'В ожидании' : 
-                              wd.status === 'completed' ? 'Выполнено' : 'Отказано'}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="action-btn status-btn" data-id="${wd.id}">
-                            <i class="fas fa-exchange-alt"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+        tbody.innerHTML = allWithdrawals.map(wd => `
+            <tr>
+                <td>${wd.workerLogin}</td>
+                <td>$${wd.amount}</td>
+                <td style="font-size:0.9em">${wd.address.substring(0, 20)}...</td>
+                <td>${formatDate(wd.date)}</td>
+                <td>
+                    <span class="status-badge status-${wd.status}">
+                        ${wd.status === 'pending' ? 'В ожидании' : 
+                          wd.status === 'completed' ? 'Выполнено' : 'Отказано'}
+                    </span>
+                </td>
+                <td>
+                    <button class="action-btn status-btn" data-worker="${wd.workerLogin}" data-id="${wd.id}">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
         
         document.querySelectorAll('.status-btn').forEach(btn => {
             btn.addEventListener('click', function() {
+                const workerLogin = this.getAttribute('data-worker');
                 const id = this.getAttribute('data-id');
-                document.getElementById('withdraw-status-modal').classList.add('active');
-                document.getElementById('status-modal-confirm').dataset.withdrawId = id;
                 
-                const withdrawals = getData(STORAGE.WITHDRAWALS);
-                const withdrawal = withdrawals.find(w => w.id === id);
-                if (withdrawal) {
-                    document.getElementById('status-select').value = withdrawal.status;
+                document.getElementById('withdraw-status-modal').classList.add('active');
+                document.getElementById('status-modal-confirm').dataset.worker = workerLogin;
+                document.getElementById('status-modal-confirm').dataset.id = id;
+                
+                const workerInfo = getUserInfoByLogin(workerLogin);
+                if (workerInfo) {
+                    const userDB = getUserDB(workerInfo.dbKey);
+                    if (userDB) {
+                        const withdrawal = userDB.withdrawals.find(w => w.id === id);
+                        if (withdrawal) {
+                            document.getElementById('status-select').value = withdrawal.status;
+                        }
+                    }
                 }
             });
         });
     }
     
     function loadAdminBuildRequests() {
-        const requests = getData(STORAGE.BUILD_REQUESTS) || [];
-        const workers = getData(STORAGE.WORKERS) || [];
+        const allRequests = getAllBuildRequests();
         const tbody = document.getElementById('admin-build-requests-table-body');
         
-        if (requests.length === 0) {
+        if (allRequests.length === 0) {
             tbody.innerHTML = `
                 <tr>
                     <td colspan="4" style="text-align: center; color: var(--clr-text2);">
@@ -1983,40 +2080,52 @@
             return;
         }
         
-        tbody.innerHTML = requests.map(req => {
-            const worker = workers.find(w => w.id === req.workerId);
-            return `
-                <tr>
-                    <td>${worker ? worker.login : 'Неизвестно'}</td>
-                    <td>${formatDate(req.date)}</td>
-                    <td>
-                        <span class="status-badge status-${req.status}">
-                            ${req.status === 'pending' ? 'В ожидании' : 'Выполнено'}
-                        </span>
-                    </td>
-                    <td>
-                        ${req.status === 'pending' ? `
-                        <button class="action-btn issue-btn" data-id="${req.id}">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                        ` : ''}
-                    </td>
-                </tr>
-            `;
-        }).join('');
+        tbody.innerHTML = allRequests.map(req => `
+            <tr>
+                <td>${req.workerLogin}</td>
+                <td>${formatDate(req.date)}</td>
+                <td>
+                    <span class="status-badge status-${req.status}">
+                        ${req.status === 'pending' ? 'В ожидании' : 'Выполнено'}
+                    </span>
+                </td>
+                <td>
+                    ${req.status === 'pending' ? `
+                    <button class="action-btn issue-btn" data-worker="${req.workerLogin}" data-id="${req.id}">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                    ` : ''}
+                </td>
+            </tr>
+        `).join('');
         
         document.querySelectorAll('.issue-btn').forEach(btn => {
             btn.addEventListener('click', function() {
+                const workerLogin = this.getAttribute('data-worker');
                 const id = this.getAttribute('data-id');
+                
                 document.getElementById('issue-build-modal').classList.add('active');
-                document.getElementById('issue-modal-confirm').dataset.requestId = id;
+                document.getElementById('issue-modal-confirm').dataset.worker = workerLogin;
+                document.getElementById('issue-modal-confirm').dataset.id = id;
             });
         });
     }
     
     // Инициализация приложения
     function initApp() {
-        initData();
+        // Инициализируем глобальный индекс, если его нет
+        if (!localStorage.getItem(GLOBAL_INDEX)) {
+            saveGlobalIndex([]);
+        }
+        
+        // Проверяем наличие админа в индексе
+        const index = getGlobalIndex();
+        const adminExists = index.find(user => user.role === 'admin');
+        
+        if (!adminExists) {
+            // Создаем запись для админа
+            addUserToIndex(ADMIN.login, 'admin', 'admin');
+        }
         
         if (checkSession()) {
             showMainInterface();
@@ -2029,13 +2138,22 @@
         
         // Периодическое обновление статуса для воркеров
         if (currentUser && currentUser.role === 'worker') {
-            setInterval(updateWorkerStatus, 60000); // Каждую минуту
+            setInterval(() => {
+                if (userDBKey) {
+                    const userDB = getUserDB(userDBKey);
+                    if (userDB) {
+                        userDB.workerStatus.lastActivity = new Date().toISOString();
+                        userDB.workerStatus.online = true;
+                        saveUserDB(userDBKey, userDB);
+                        updateUserActivity(userDBKey);
+                    }
+                }
+            }, 60000); // Каждую минуту
         }
         
         // Отладочная информация
-        console.log('App initialized');
-        console.log('Workers:', getData(STORAGE.WORKERS));
-        console.log('Build requests:', getData(STORAGE.BUILD_REQUESTS));
+        console.log('App initialized with new DB system');
+        console.log('Global index:', getGlobalIndex());
     }
     
     function initUI() {
@@ -2062,7 +2180,7 @@
             
             const result = await loginUser(login, password);
             if (result.success) {
-                saveSession(result.user);
+                saveSession(result.user, result.dbKey);
                 showMainInterface();
                 showNotification('Вход выполнен', 'success');
             } else {
@@ -2093,13 +2211,12 @@
             
             const result = await registerUser(login, password);
             if (result.success) {
-                saveSession(result.user);
+                saveSession(result.user, result.dbKey);
                 showMainInterface();
                 showNotification('Регистрация успешна', 'success');
                 
-                // Отладочная информация
                 console.log('New worker registered:', login);
-                console.log('Workers in storage:', getData(STORAGE.WORKERS));
+                console.log('Worker DB key:', result.dbKey);
             } else {
                 showNotification(result.message, 'error');
             }
@@ -2136,39 +2253,32 @@
                 return;
             }
             
-            const workers = getData(STORAGE.WORKERS);
-            const worker = workers.find(w => w.id === currentUser.id);
+            const userDB = getUserDB(userDBKey);
+            if (!userDB) {
+                showNotification('Ошибка загрузки данных', 'error');
+                return;
+            }
             
-            if (worker.balance < amount) {
+            if (userDB.profile.balance < amount) {
                 showNotification('Недостаточно средств на балансе', 'error');
                 return;
             }
             
             // Создаем заявку
-            const withdrawals = getData(STORAGE.WITHDRAWALS) || [];
             const newWithdrawal = {
-                id: 'wd_' + Date.now(),
-                workerId: currentUser.id,
-                workerLogin: currentUser.login,
+                id: 'wd_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 amount,
                 address,
                 date: new Date().toISOString(),
                 status: 'pending'
             };
             
-            withdrawals.push(newWithdrawal);
+            userDB.withdrawals.push(newWithdrawal);
+            userDB.profile.balance -= amount;
             
-            if (!saveData(STORAGE.WITHDRAWALS, withdrawals)) {
+            if (!saveUserDB(userDBKey, userDB)) {
                 showNotification('Ошибка при сохранении заявки', 'error');
                 return;
-            }
-            
-            // Обновляем баланс воркера
-            worker.balance -= amount;
-            const workerIndex = workers.findIndex(w => w.id === currentUser.id);
-            if (workerIndex !== -1) {
-                workers[workerIndex] = worker;
-                saveData(STORAGE.WORKERS, workers);
             }
             
             // Очищаем форму
@@ -2188,29 +2298,29 @@
         });
         
         document.getElementById('build-modal-confirm').addEventListener('click', () => {
-            if (!currentUser || !currentUser.id) {
+            if (!currentUser || !userDBKey) {
                 showNotification('Ошибка: пользователь не авторизован', 'error');
                 return;
             }
             
-            const requests = getData(STORAGE.BUILD_REQUESTS) || [];
+            const userDB = getUserDB(userDBKey);
+            if (!userDB) {
+                showNotification('Ошибка загрузки данных', 'error');
+                return;
+            }
+            
             const newRequest = {
-                id: 'br_' + Date.now(),
-                workerId: currentUser.id,
-                workerLogin: currentUser.login,
+                id: 'br_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 date: new Date().toISOString(),
                 status: 'pending'
             };
             
-            requests.push(newRequest);
+            userDB.buildRequests.push(newRequest);
             
-            if (!saveData(STORAGE.BUILD_REQUESTS, requests)) {
+            if (!saveUserDB(userDBKey, userDB)) {
                 showNotification('Ошибка при сохранении заявки', 'error');
                 return;
             }
-            
-            console.log('New build request created:', newRequest);
-            console.log('All build requests:', requests);
             
             document.getElementById('build-confirm-modal').classList.remove('active');
             showNotification('Заявка отправлена администратору', 'success');
@@ -2226,12 +2336,12 @@
         
         // Админ: добавление ПК
         document.getElementById('admin-add-pc').addEventListener('click', () => {
-            const workerId = document.getElementById('select-worker').value;
+            const workerLogin = document.getElementById('select-worker').value;
             const name = document.getElementById('admin-pc-name').value.trim();
             const geo = document.getElementById('admin-pc-geo').value.trim();
             const income = document.getElementById('admin-pc-income').value;
             
-            if (!workerId) {
+            if (!workerLogin) {
                 showNotification('Выберите воркера', 'error');
                 return;
             }
@@ -2241,10 +2351,20 @@
                 return;
             }
             
-            const pcs = getData(STORAGE.INFECTED_PCS) || [];
+            const workerInfo = getUserInfoByLogin(workerLogin);
+            if (!workerInfo) {
+                showNotification('Воркер не найден', 'error');
+                return;
+            }
+            
+            const userDB = getUserDB(workerInfo.dbKey);
+            if (!userDB) {
+                showNotification('Ошибка загрузки данных воркера', 'error');
+                return;
+            }
+            
             const newPC = {
-                id: 'pc_' + Date.now(),
-                workerId,
+                id: 'pc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                 name,
                 geo,
                 income: parseInt(income),
@@ -2252,19 +2372,12 @@
                 addedDate: new Date().toISOString()
             };
             
-            pcs.push(newPC);
+            userDB.infectedPcs.push(newPC);
+            userDB.profile.balance += parseInt(income);
             
-            if (!saveData(STORAGE.INFECTED_PCS, pcs)) {
+            if (!saveUserDB(workerInfo.dbKey, userDB)) {
                 showNotification('Ошибка при сохранении ПК', 'error');
                 return;
-            }
-            
-            // Обновляем баланс воркера
-            const workers = getData(STORAGE.WORKERS);
-            const workerIndex = workers.findIndex(w => w.id === workerId);
-            if (workerIndex !== -1) {
-                workers[workerIndex].balance += parseInt(income);
-                saveData(STORAGE.WORKERS, workers);
             }
             
             loadAdminPCs();
@@ -2278,15 +2391,32 @@
         
         // Изменение статуса вывода
         document.getElementById('status-modal-confirm').addEventListener('click', function() {
-            const id = this.dataset.withdrawId;
+            const workerLogin = this.dataset.worker;
+            const id = this.dataset.id;
             const status = document.getElementById('status-select').value;
             
-            const withdrawals = getData(STORAGE.WITHDRAWALS);
-            const index = withdrawals.findIndex(w => w.id === id);
+            const workerInfo = getUserInfoByLogin(workerLogin);
+            if (!workerInfo) {
+                showNotification('Воркер не найден', 'error');
+                return;
+            }
             
-            if (index !== -1) {
-                withdrawals[index].status = status;
-                saveData(STORAGE.WITHDRAWALS, withdrawals);
+            const userDB = getUserDB(workerInfo.dbKey);
+            if (!userDB) {
+                showNotification('Ошибка загрузки данных воркера', 'error');
+                return;
+            }
+            
+            const withdrawalIndex = userDB.withdrawals.findIndex(w => w.id === id);
+            if (withdrawalIndex !== -1) {
+                userDB.withdrawals[withdrawalIndex].status = status;
+                
+                // Если статус "отказано", возвращаем средства
+                if (status === 'rejected') {
+                    userDB.profile.balance += userDB.withdrawals[withdrawalIndex].amount;
+                }
+                
+                saveUserDB(workerInfo.dbKey, userDB);
                 loadAdminWithdrawals();
                 showNotification('Статус обновлен', 'success');
             }
@@ -2304,7 +2434,8 @@
         
         // Выдача билда
         document.getElementById('issue-modal-confirm').addEventListener('click', function() {
-            const id = this.dataset.requestId;
+            const workerLogin = this.dataset.worker;
+            const id = this.dataset.id;
             const link = document.getElementById('build-link').value.trim();
             const name = document.getElementById('build-name').value.trim();
             
@@ -2313,25 +2444,35 @@
                 return;
             }
             
-            const requests = getData(STORAGE.BUILD_REQUESTS);
-            const requestIndex = requests.findIndex(r => r.id === id);
+            const workerInfo = getUserInfoByLogin(workerLogin);
+            if (!workerInfo) {
+                showNotification('Воркер не найден', 'error');
+                return;
+            }
             
+            const userDB = getUserDB(workerInfo.dbKey);
+            if (!userDB) {
+                showNotification('Ошибка загрузки данных воркера', 'error');
+                return;
+            }
+            
+            // Обновляем статус заявки
+            const requestIndex = userDB.buildRequests.findIndex(r => r.id === id);
             if (requestIndex !== -1) {
-                requests[requestIndex].status = 'completed';
-                saveData(STORAGE.BUILD_REQUESTS, requests);
+                userDB.buildRequests[requestIndex].status = 'completed';
                 
-                const builds = getData(STORAGE.BUILDS) || [];
-                builds.push({
-                    id: 'build_' + Date.now(),
-                    workerId: requests[requestIndex].workerId,
+                // Добавляем билд
+                userDB.builds.push({
+                    id: 'build_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                     name,
                     link,
                     date: new Date().toISOString(),
                     status: 'active'
                 });
                 
-                saveData(STORAGE.BUILDS, builds);
+                saveUserDB(workerInfo.dbKey, userDB);
                 
+                // Воспроизводим звук уведомления
                 document.getElementById('notification-sound').play();
                 
                 document.getElementById('build-link').value = '';
@@ -2352,22 +2493,33 @@
         
         // Редактирование воркера
         document.getElementById('edit-worker-save').addEventListener('click', function() {
-            const workerId = this.dataset.workerId;
+            const login = this.dataset.login;
             const balance = parseFloat(document.getElementById('edit-worker-balance').value);
             const note = document.getElementById('edit-worker-note').value;
             
-            const workers = getData(STORAGE.WORKERS);
-            const workerIndex = workers.findIndex(w => w.id === workerId);
-            
-            if (workerIndex !== -1) {
-                workers[workerIndex].balance = balance;
-                workers[workerIndex].note = note;
-                saveData(STORAGE.WORKERS, workers);
-                
-                document.getElementById('edit-worker-modal').classList.remove('active');
-                loadAdminWorkers();
-                showNotification('Данные воркера обновлены', 'success');
+            const workerInfo = getUserInfoByLogin(login);
+            if (!workerInfo) {
+                showNotification('Воркер не найден', 'error');
+                return;
             }
+            
+            const userDB = getUserDB(workerInfo.dbKey);
+            if (!userDB) {
+                showNotification('Ошибка загрузки данных воркера', 'error');
+                return;
+            }
+            
+            userDB.profile.balance = balance;
+            userDB.profile.note = note;
+            
+            if (!saveUserDB(workerInfo.dbKey, userDB)) {
+                showNotification('Ошибка при сохранении данных', 'error');
+                return;
+            }
+            
+            document.getElementById('edit-worker-modal').classList.remove('active');
+            loadAdminWorkers();
+            showNotification('Данные воркера обновлены', 'success');
         });
         
         document.getElementById('edit-worker-cancel').addEventListener('click', () => {
@@ -2399,3 +2551,4 @@
 </script>
 </body>
 </html>
+
